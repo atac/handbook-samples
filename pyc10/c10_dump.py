@@ -14,10 +14,10 @@ Options:
 import atexit
 import os
 
+from chapter10 import C10, datatypes
 from docopt import docopt
 
-from chapter10 import C10, datatypes
-from chapter10.walk import walk_packets
+from walk import walk_packets
 
 
 if __name__ == '__main__':

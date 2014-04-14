@@ -12,7 +12,8 @@ from docopt import docopt
 
 from chapter10 import C10
 from chapter10.datatypes import get_label
-from chapter10.walk import walk_packets
+
+from walk import walk_packets
 
 
 if __name__ == '__main__':

@@ -1,0 +1,3 @@
+*.pyc
+pyc10/build/*
+pyc10/mplayer/*

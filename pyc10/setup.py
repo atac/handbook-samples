@@ -32,7 +32,7 @@ try:
 
     if sys.platform == 'win32':
         kwargs['options']['build_exe']['include_files'] = (
-            ('mplayer.exe', 'mplayer.exe'),
+            ('../mplayer.exe', 'mplayer.exe'),
         )
 
 except ImportError:

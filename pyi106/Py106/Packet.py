@@ -243,7 +243,7 @@ class IO(object):
 
 # Make the IRIG 106 DLL ctypes object
 FilePath, FileName = os.path.split(os.path.abspath(__file__))
-DllFileName = FilePath + "\\irig106.dll"
+DllFileName = os.path.join(FilePath, "irig106.dll")
 IrigDataDll = ctypes.cdll.LoadLibrary(DllFileName)
 
 # This test code just opens an IRIG file and does a histogram of the

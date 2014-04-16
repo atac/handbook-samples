@@ -11,7 +11,7 @@ import calendar
 
 import Packet
 import Status
-import MsgDecodeTime
+#import MsgDecodeTime
 
 
 # ---------------------------------------------------------------------------
@@ -35,13 +35,13 @@ class _ctIrig106Time(ctypes.Structure):
                 ("Fracs",           ctypes.c_uint32),   # LSB = 100ns
                 ("DateFormat",      ctypes.c_uint32)]   # Day or DMY format
 
-     
+
     def set_from_IrigTime(self, irig_time_in):
         self.Secs       = calendar.timegm(irig_time_in.time.timetuple())
         self.Fracs      = irig_time_in.time.microsecond * 10
         self.DateFormat = irig_time_in.dt_format
 
-        
+
 # ---------------------------------------------------------------------------
 # Direct calls into the IRIG 106 dll
 # ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ def I106_SyncTime(handle, require_sync, time_limit):
     ''' Search for time and set relative to absolute time reference'''
     # handle - IRIG file handle
     # require_sync - Bool indicating whether time source must be externally sync'ed to be valid
-    # time_limit = Maximum amount of time in seconds to scan forward in the file 
+    # time_limit = Maximum amount of time in seconds to scan forward in the file
     return Packet.IrigDataDll.enI106_SyncTime(handle, require_sync, time_limit)
 
 
@@ -106,7 +106,7 @@ def I106_IrigTime2String(irig_time_in):
         return ""
     except:
         return ""
-                        
+
 
 # ---------------------------------------------------------------------------
 # IRIG time classes
@@ -119,12 +119,12 @@ class IrigTime(object):
     def __init___(self):
         self.time = datetime()
         self.dt_format = DateFmt.DAY
-        
+
     def __str__(self):
         return I106_IrigTime2String(self)
-    
+
     def set_from_ctIrig106Time(self, ctype_irig_time):
-        self.time      = datetime.datetime.utcfromtimestamp(ctype_irig_time.Secs) 
+        self.time      = datetime.datetime.utcfromtimestamp(ctype_irig_time.Secs)
         self.time      = self.time.replace(microsecond=ctype_irig_time.Fracs/10)
         self.dt_format = ctype_irig_time.DateFormat
 
@@ -138,10 +138,10 @@ class Time(object):
 
     def __init__(self, PacketIO):
         self.PacketIO = PacketIO
-                
+
     def SetRelTime(self):
         '''Set relative time to clock time'''
-        # This routine assumes a time packet has been read and is sitting in 
+        # This routine assumes a time packet has been read and is sitting in
         # the PacketIO buffer
 
         # Bail out if the data isn't a time packet
@@ -152,22 +152,22 @@ class Time(object):
         # data wasn't read
         if self.PacketIO.Buffer._length_ == 0:
             return
-                
+
         # Decode the time in the packet buffer
         ret_status, irig_time = MsgDecodeTime.I106_Decode_TimeF1(self.PacketIO.Header, self.PacketIO.Buffer)
         if ret_status != Status.OK:
             return
-        
+
         I106_SetRelTime(self.PacketIO._Handle, irig_time, self.PacketIO.Header.RefTime)
         return
-    
+
 
     def SyncTime(self, require_sync, time_limit):
         return I106_SyncTime(self.PacketIO._Handle, require_sync, time_limit)
 
     def Rel2IrigTime(self, rel_time):
-        ''' Calculate time from a Relative Time Counter value. 
-            rel_time is 6 byte array typically from the packet header. 
+        ''' Calculate time from a Relative Time Counter value.
+            rel_time is 6 byte array typically from the packet header.
             Returns a Py106 time value '''
         try:
 #            iTime = _ctIrig106Time()
@@ -177,12 +177,12 @@ class Time(object):
         except Exception:
 #            traceback.print_exc()
             return None
-        
+
         return irig_time
 
     def RelInt2IrigTime(self, rel_time):
-        ''' Calculate time from a Relative Time Counter value. 
-            rel_time is 64 bit int typically from a message header. 
+        ''' Calculate time from a Relative Time Counter value.
+            rel_time is 64 bit int typically from a message header.
             Returns a Py106 time value '''
         try:
 #            iTime = _ctIrig106Time()
@@ -192,7 +192,7 @@ class Time(object):
         except Exception:
             traceback.print_exc()
             return None
-    
+
         return irig_time
 
 # ---------------------------------------------------------------------------
@@ -207,7 +207,7 @@ if __name__=='__main__':
     print "IRIG 1106 Time"
     PktIO     = Packet.IO()
     TimeUtils = Time(PktIO)
-    
+
     if len(sys.argv) > 1 :
         RetStatus = PktIO.open(sys.argv[1], Packet.FileMode.READ)
         if RetStatus != Status.OK :
@@ -216,12 +216,12 @@ if __name__=='__main__':
     else :
         print "Usage : time.py <filename>"
         sys.exit(1)
-    
+
     RetStatus = TimeUtils.SyncTime(False, 0)
     if RetStatus != Status.OK:
         print ("Sync Status = %s" % Status.Message(RetStatus))
         sys.exit(1)
-    
+
     # Read IRIG headers
     for PktHdr in PktIO.packet_headers():
         IntRefTime = PktHdr.RefTime[5] << 8*5 | \
@@ -236,7 +236,7 @@ if __name__=='__main__':
             PktTime, IntRefTime, PktHdr.ChID, Packet.DataType.TypeName(PktHdr.DataType))
 #            IrigTime2String(PktTime), IntRefTime, PktHdr.ChID, Packet.DataType.TypeName(PktHdr.DataType))
 #            PktTime.time.isoformat(' '), IntRefTime, PktHdr.ChID, Packet.DataType.TypeName(PktHdr.DataType))
-                
+
     PktIO.close()
 
-    
+

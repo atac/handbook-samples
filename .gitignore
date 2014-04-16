@@ -1,3 +1,4 @@
 *.pyc
+mplayer/*
 pyc10/build/*
-pyc10/mplayer/*
+pyi106/build/*

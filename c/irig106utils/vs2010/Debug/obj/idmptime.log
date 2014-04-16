@@ -1,0 +1,14 @@
+﻿Build started 3/3/2014 4:16:03 PM.
+     1>Project "C:\Users\mcferrill\ATAC\Programming Handbook\irig106-code\irig106\irig106utils\vs2010\idmptime.vcxproj" on node 5 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (Debug\obj\) contains files shared from another project (i106stat.vcxproj, i106trim.vcxproj, i106vid.vcxproj, idmp1553.vcxproj, idmp429.vcxproj, idmpeth.vcxproj, idmpins.vcxproj, idmptmat.vcxproj, idmpuart.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>ClCompile:
+         C:\Program Files (x86)\VC\bin\CL.exe /c /I..\..\irig106lib\src /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _USE_32BIT_TIME_T /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\obj\\" /Fd"Debug\obj\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\src\idmptime.c
+         idmptime.c
+       Link:
+         C:\Program Files (x86)\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Debug\idmptime.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:Debug\irig106lib\ irig106.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Debug\idmptime.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE:NO /IMPLIB:"Debug\idmptime.lib" /MACHINE:X86 /SAFESEH Debug\obj\idmptime.obj
+         idmptime.vcxproj -> C:\Users\mcferrill\ATAC\Programming Handbook\irig106-code\irig106\irig106utils\vs2010\Debug\idmptime.exe
+     1>Done Building Project "C:\Users\mcferrill\ATAC\Programming Handbook\irig106-code\irig106\irig106utils\vs2010\idmptime.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.49

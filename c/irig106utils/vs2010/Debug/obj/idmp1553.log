@@ -1,0 +1,13 @@
+﻿Build started 3/3/2014 4:16:03 PM.
+     1>Project "C:\Users\mcferrill\ATAC\Programming Handbook\irig106-code\irig106\irig106utils\vs2010\idmp1553.vcxproj" on node 4 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (Debug\obj\) contains files shared from another project (i106stat.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>ClCompile:
+         C:\Program Files (x86)\VC\bin\CL.exe /c /I..\..\irig106lib\src /Zi /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _USE_32BIT_TIME_T /D _VC80_UPGRADE=0x0600 /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\obj\\" /Fd"Debug\obj\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt ..\src\idmp1553.c
+     1>cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+         idmp1553.c
+     1>..\src\idmp1553.c : fatal error C1041: cannot open program database 'c:\users\mcferrill\atac\programming handbook\irig106-code\irig106\irig106utils\vs2010\debug\obj\vc120.idb'; if multiple CL.EXE write to the same .PDB file, please use /FS
+     1>Done Building Project "C:\Users\mcferrill\ATAC\Programming Handbook\irig106-code\irig106\irig106utils\vs2010\idmp1553.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.20

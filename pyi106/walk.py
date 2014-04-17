@@ -1,7 +1,7 @@
 
 
-def walk_packets(source, args={}):
-    """Walk a chapter 10 file based on sys.argv (type, channel, etc.)."""
+def walk_args(args):
+    """Parse args into channels, exclude, and types."""
 
     # Apply defaults.
     args['--type'] = args.get('--type') or ''
@@ -15,6 +15,14 @@ def walk_packets(source, args={}):
     # Parse channel selection.
     channels = [c.strip() for c in args['--channel'].split(',') if c.strip()]
     exclude = [e.strip() for e in args['--exclude'].split(',') if e.strip()]
+
+    return channels, exclude, types
+
+
+def walk_packets(source, args={}):
+    """Walk a chapter 10 file based on sys.argv (type, channel, etc.)."""
+
+    channels, exclude, types = walk_args(args)
 
     for packet in source:
         if channels and str(packet.ChID) not in channels:

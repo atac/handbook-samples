@@ -19,6 +19,7 @@ import os
 from docopt import docopt
 
 from Py106.Packet import IO, FileMode, Status
+from walk import walk_args
 
 
 if __name__ == '__main__':
@@ -27,6 +28,8 @@ if __name__ == '__main__':
     # Ensure OUT exists.
     if not os.path.exists(args['--output']):
         os.makedirs(args['--output'])
+
+    channels, exclude, types = walk_args(args)
 
     with closing(IO()) as PktIO:
         RetStatus = PktIO.open(args['<file>'], FileMode.READ)
@@ -37,6 +40,14 @@ if __name__ == '__main__':
         out = {}
         while RetStatus == Status.OK:
             RetStatus = PktIO.read_next_header()
+
+            if channels and str(PktIO.Header.ChID) not in channels:
+                continue
+            elif str(PktIO.Header.ChID) in exclude:
+                continue
+            elif types and PktIO.Header.DataType not in types:
+                continue
+
             if PktIO.read_data() != Status.OK:
                 continue
             header = buffer(PktIO.Header)[:]

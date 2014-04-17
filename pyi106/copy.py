@@ -15,6 +15,7 @@ import os
 from docopt import docopt
 
 from Py106.Packet import IO, FileMode, Status
+from walk import walk_args
 
 
 if __name__ == '__main__':
@@ -24,6 +25,8 @@ if __name__ == '__main__':
     if os.path.exists(args['<dst>']) and not args['--force']:
         print('dst file already exists. Use -f to overwrite.')
         raise SystemExit
+
+    channels, exclude, types = walk_args(args)
 
     with open(args['<dst>'], 'wb') as out, closing(IO()) as PktIO:
         RetStatus = PktIO.open(args['<src>'], FileMode.READ)
@@ -35,6 +38,13 @@ if __name__ == '__main__':
             RetStatus = PktIO.read_next_header()
             if PktIO.read_data() != Status.OK:
                 continue
+            if channels and str(PktIO.Header.ChID) not in channels:
+                continue
+            elif str(PktIO.Header.ChID) in exclude:
+                continue
+            elif types and PktIO.Header.DataType not in types:
+                continue
+
             header = buffer(PktIO.Header)[:]
             if not bool(PktIO.Header.PacketFlags & (1 << 7)):
                 header = header[:-12]

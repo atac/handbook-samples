@@ -46,9 +46,9 @@ if __name__ == '__main__':
     print('Channel ID      Data Type' + 'Packets'.rjust(47))
     print('-' * 80)
     for channel in channels:
+        dtype = DataType.name(channel['type'])
         print (''.join((('Channel %s' % channel['id']).ljust(15),
-                       ('%s - %s' % (hex(channel['type']),
-                                     DataType.name(channel['type']))).ljust(35),
+                       ('%s - %s' % (hex(channel['type']), dtype)).ljust(35),
                        ('%s packets' % channel['packets']).rjust(20))))
 
     units = ['gb', 'mb', 'kb']

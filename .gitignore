@@ -5,3 +5,5 @@ mplayer/*
 pyc10/build/*
 pyi106/build/*
 c/irig106utils/vs2010/Debug*
+/c/vs/Debug
+/c/vs/vs/Debug

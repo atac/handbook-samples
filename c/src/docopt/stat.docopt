@@ -1,0 +1,11 @@
+stat - show details of a chapter 10 file
+
+Usage:
+    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]
+    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]
+    stat show <file> [-t TYPE|--type TYPE]... [options]
+
+Options:
+    -c CHANNEL..., --channel CHANNEL...  Specify channels to include(csv).
+    -e CHANNEL..., --exclude CHANNEL...  Specify channels to ignore (csv).
+    -t TYPE, --type TYPE                 The types of data to show (csv, may be decimal or hex eg: 0x40).

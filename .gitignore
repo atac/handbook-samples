@@ -1,6 +1,11 @@
 *.pyc
 *.c10
 *.ch10
+*.suo
+*.sdf
+*.opensdf
+*.vcxproj.filters
+*.vcxproj.user
 mplayer/*
 pyc10/build/*
 pyi106/build/*

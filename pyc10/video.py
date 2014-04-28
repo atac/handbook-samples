@@ -17,13 +17,16 @@ from ui.video import Ui_MainWindow
 
 # Tell mplayer.py where mplayer actually is.
 try:
-    basedir = os.path.dirname(__file__)
+    basedir = os.path.join(os.path.dirname(__file__), '..')
 except NameError:
     basedir = os.path.dirname(sys.executable)
 
 try:
     subprocess.Popen(mplayer.Player.exec_path).wait()
 except OSError:
+    mplayer.Player.exec_path = os.path.join(basedir, 'mplayer.exe')
+
+if sys.platform == 'win32' and not os.path.exists(mplayer.Player.exec_path):
     mplayer.Player.exec_path = os.path.join(basedir, 'mplayer.exe')
 
 # Force subprocess.Popen to use shell=True on windows.

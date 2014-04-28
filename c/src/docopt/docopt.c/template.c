@@ -10,39 +10,17 @@
 #endif
 
 
-typedef struct {
-    /* commands */
-    int show;
-    /* arguments */
-    char *file;
-    /* options with arguments */
-    char *channel;
-    char *exclude;
-    char *type;
+typedef struct {$commands$arguments$flags$options
     /* special */
     const char *usage_pattern;
     const char *help_message;
 } DocoptArgs;
 
 const char help_message[] =
-"stat - show details of a chapter 10 file\n"
-"\n"
-"Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]\n"
-"\n"
-"Options:\n"
-"    -c CHANNEL..., --channel CHANNEL...  Specify channels to include(csv).\n"
-"    -e CHANNEL..., --exclude CHANNEL...  Specify channels to ignore (csv).\n"
-"    -t TYPE, --type TYPE                 The types of data to show (csv, may be decimal or hex eg: 0x40).\n"
-"";
+$help_message;
 
 const char usage_pattern[] =
-"Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]";
+$usage_pattern;
 
 typedef struct {
     const char *name;
@@ -257,30 +235,15 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
                    !strcmp(option->olong, "--version")) {
             printf("%s\n", version);
             return 1;
-        } else if (!strcmp(option->olong, "--channel")) {
-            if (option->argument)
-                args->channel = option->argument;
-        } else if (!strcmp(option->olong, "--exclude")) {
-            if (option->argument)
-                args->exclude = option->argument;
-        } else if (!strcmp(option->olong, "--type")) {
-            if (option->argument)
-                args->type = option->argument;
-        }
+        }$if_flag$if_option
     }
     /* commands */
     for (i=0; i < elements->n_commands; i++) {
-        command = &elements->commands[i];
-        if (!strcmp(command->name, "show")) {
-            args->show = command->value;
-        }
+        command = &elements->commands[i];$if_command
     }
     /* arguments */
     for (i=0; i < elements->n_arguments; i++) {
-        argument = &elements->arguments[i];
-        if (!strcmp(argument->name, "<file>")) {
-            args->file = argument->value;
-        }
+        argument = &elements->arguments[i];$if_argument
     }
     return 0;
 }
@@ -291,23 +254,17 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
  */
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
-    DocoptArgs args = {
-        0, NULL, NULL, NULL, NULL,
+    DocoptArgs args = {$defaults
         usage_pattern, help_message
     };
     Tokens ts;
-    Command commands[] = {
-        {"show", 0}
+    Command commands[] = {$elems_cmds
     };
-    Argument arguments[] = {
-        {"<file>", NULL, NULL}
+    Argument arguments[] = {$elems_args
     };
-    Option options[] = {
-        {"-c", "--channel", 1, 0, NULL},
-        {"-e", "--exclude", 1, 0, NULL},
-        {"-t", "--type", 1, 0, NULL}
+    Option options[] = {$elems_opts
     };
-    Elements elements = {1, 1, 3, commands, arguments, options};
+    Elements elements = {$elems_n, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))

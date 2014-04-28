@@ -12,37 +12,57 @@
 
 typedef struct {
     /* commands */
-    int show;
+    int create;
+    int mine;
+    int move;
+    int remove;
+    int set;
+    int ship;
+    int shoot;
     /* arguments */
-    char *file;
+    char *name;
+    char *x;
+    char *y;
+    /* options without arguments */
+    int drifting;
+    int help;
+    int moored;
+    int version;
     /* options with arguments */
-    char *channel;
-    char *exclude;
-    char *type;
+    char *speed;
     /* special */
     const char *usage_pattern;
     const char *help_message;
 } DocoptArgs;
 
 const char help_message[] =
-"stat - show details of a chapter 10 file\n"
+"Naval Fate.\n"
 "\n"
 "Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]\n"
+"  naval_fate.py ship create <name>...\n"
+"  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]\n"
+"  naval_fate.py ship shoot <x> <y>\n"
+"  naval_fate.py mine (set|remove) <x> <y> [--moored|--drifting]\n"
+"  naval_fate.py --help\n"
+"  naval_fate.py --version\n"
 "\n"
 "Options:\n"
-"    -c CHANNEL..., --channel CHANNEL...  Specify channels to include(csv).\n"
-"    -e CHANNEL..., --exclude CHANNEL...  Specify channels to ignore (csv).\n"
-"    -t TYPE, --type TYPE                 The types of data to show (csv, may be decimal or hex eg: 0x40).\n"
+"  -h --help     Show this screen.\n"
+"  --version     Show version.\n"
+"  --speed=<kn>  Speed in knots [default: 10].\n"
+"  --moored      Moored (anchored) mine.\n"
+"  --drifting    Drifting mine.\n"
+"\n"
 "";
 
 const char usage_pattern[] =
 "Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]";
+"  naval_fate.py ship create <name>...\n"
+"  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]\n"
+"  naval_fate.py ship shoot <x> <y>\n"
+"  naval_fate.py mine (set|remove) <x> <y> [--moored|--drifting]\n"
+"  naval_fate.py --help\n"
+"  naval_fate.py --version";
 
 typedef struct {
     const char *name;
@@ -120,7 +140,7 @@ int parse_long(Tokens *ts, Elements *elements) {
     int len_prefix;
     int n_options = elements->n_options;
     char *eq = strchr(ts->current, '=');
-    Option *option = NULL;
+    Option *option;
     Option *options = elements->options;
 
     len_prefix = (eq-(ts->current))/sizeof(char);
@@ -160,7 +180,7 @@ int parse_shorts(Tokens *ts, Elements *elements) {
     char *raw;
     int i;
     int n_options = elements->n_options;
-    Option *option = NULL;
+    Option *option;
     Option *options = elements->options;
 
     raw = &ts->current[1];
@@ -257,29 +277,47 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
                    !strcmp(option->olong, "--version")) {
             printf("%s\n", version);
             return 1;
-        } else if (!strcmp(option->olong, "--channel")) {
+        } else if (!strcmp(option->olong, "--drifting")) {
+            args->drifting = option->value;
+        } else if (!strcmp(option->olong, "--help")) {
+            args->help = option->value;
+        } else if (!strcmp(option->olong, "--moored")) {
+            args->moored = option->value;
+        } else if (!strcmp(option->olong, "--version")) {
+            args->version = option->value;
+        } else if (!strcmp(option->olong, "--speed")) {
             if (option->argument)
-                args->channel = option->argument;
-        } else if (!strcmp(option->olong, "--exclude")) {
-            if (option->argument)
-                args->exclude = option->argument;
-        } else if (!strcmp(option->olong, "--type")) {
-            if (option->argument)
-                args->type = option->argument;
+                args->speed = option->argument;
         }
     }
     /* commands */
     for (i=0; i < elements->n_commands; i++) {
         command = &elements->commands[i];
-        if (!strcmp(command->name, "show")) {
-            args->show = command->value;
+        if (!strcmp(command->name, "create")) {
+            args->create = command->value;
+        } else if (!strcmp(command->name, "mine")) {
+            args->mine = command->value;
+        } else if (!strcmp(command->name, "move")) {
+            args->move = command->value;
+        } else if (!strcmp(command->name, "remove")) {
+            args->remove = command->value;
+        } else if (!strcmp(command->name, "set")) {
+            args->set = command->value;
+        } else if (!strcmp(command->name, "ship")) {
+            args->ship = command->value;
+        } else if (!strcmp(command->name, "shoot")) {
+            args->shoot = command->value;
         }
     }
     /* arguments */
     for (i=0; i < elements->n_arguments; i++) {
         argument = &elements->arguments[i];
-        if (!strcmp(argument->name, "<file>")) {
-            args->file = argument->value;
+        if (!strcmp(argument->name, "<name>")) {
+            args->name = argument->value;
+        } else if (!strcmp(argument->name, "<x>")) {
+            args->x = argument->value;
+        } else if (!strcmp(argument->name, "<y>")) {
+            args->y = argument->value;
         }
     }
     return 0;
@@ -292,22 +330,32 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, NULL, NULL, NULL, NULL,
+        0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, 0, 0, 0, 0, (char*) "10",
         usage_pattern, help_message
     };
     Tokens ts;
     Command commands[] = {
-        {"show", 0}
+        {"create", 0},
+        {"mine", 0},
+        {"move", 0},
+        {"remove", 0},
+        {"set", 0},
+        {"ship", 0},
+        {"shoot", 0}
     };
     Argument arguments[] = {
-        {"<file>", NULL, NULL}
+        {"<name>", NULL, NULL},
+        {"<x>", NULL, NULL},
+        {"<y>", NULL, NULL}
     };
     Option options[] = {
-        {"-c", "--channel", 1, 0, NULL},
-        {"-e", "--exclude", 1, 0, NULL},
-        {"-t", "--type", 1, 0, NULL}
+        {NULL, "--drifting", 0, 0, NULL},
+        {"-h", "--help", 0, 0, NULL},
+        {NULL, "--moored", 0, 0, NULL},
+        {NULL, "--version", 0, 0, NULL},
+        {NULL, "--speed", 1, 0, NULL}
     };
-    Elements elements = {1, 1, 3, commands, arguments, options};
+    Elements elements = {7, 3, 5, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))
@@ -316,3 +364,4 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         exit(EXIT_SUCCESS);
     return args;
 }
+

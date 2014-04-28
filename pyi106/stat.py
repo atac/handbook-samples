@@ -43,7 +43,7 @@ if __name__ == '__main__':
                                  'id': packet.ChID})
             channels[channel_index]['packets'] += 1
 
-    print('Channel ID      Data Type' + 'Packets'.rjust(47))
+    print('Channel ID     Data Type' + 'Packets'.rjust(46))
     print('-' * 80)
     for channel in channels:
         dtype = DataType.name(channel['type'])

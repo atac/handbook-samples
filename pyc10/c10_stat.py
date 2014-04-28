@@ -39,7 +39,7 @@ if __name__ == '__main__':
                             'id': packet.channel_id})
         channels[channel_index]['packets'] += 1
 
-    print('Channel ID      Data Type' + 'Packets'.rjust(47))
+    print('Channel ID     Data Type' + 'Packets'.rjust(46))
     print('-' * 80)
     for channel in channels:
         print (''.join((('Channel %s' % channel['id']).ljust(15),

@@ -20,7 +20,7 @@ typedef struct {
 	ChanSpec * channels[0x10000];
 } FileSpec;
 
-int pause(int status){
+int quit(int status){
 	printf("\n\nPress ENTER to exit");
 	getchar();
 	return status;
@@ -28,14 +28,14 @@ int pause(int status){
 
 int error(char msg[]){
 	printf(msg);
-	return pause(1);
+	return quit(1);
 }
 
 int print_results(char filename[], float byte_size, int packets, ChanSpec * channels[]){
 
 	// Show channels
 	printf("Channel ID      Data Type%35sPackets\n", "");
-	printf("--------------------------------------------------------------------------------");
+	printf("--------------------------------------------------------------------------------\n");
 	int i = 0;
 	while (channels[i] != NULL){
 		printf("Channel%3d", channels[i]->id);
@@ -46,7 +46,7 @@ int print_results(char filename[], float byte_size, int packets, ChanSpec * chan
 		i++;
 	}
 
-	printf("--------------------------------------------------------------------------------");
+	printf("--------------------------------------------------------------------------------\n");
 	printf("Summary for %s:\n", filename);
 
 	// Make size more readable.
@@ -69,7 +69,7 @@ int print_results(char filename[], float byte_size, int packets, ChanSpec * chan
 	printf("    Channels: %d\n", i);
 
 	// Wait for explicit exit.
-	return pause(0);
+	return quit(0);
 }
 
 int get_channel_index(ChanSpec * channels[], unsigned int id, unsigned int type){
@@ -103,7 +103,7 @@ int main(int argc, char ** argv){
 	static ChanSpec * channels[0x10000];
 
 	// Open file for reading.
-	char filename[] = "C:/Users/mcferrill/ATAC/Data/test2.c10";
+	char filename[] = "C:/Users/mcferrill/ATAC/Data/d0001.c10";
 	EnI106Status status = enI106Ch10Open(&input_handle, filename, I106_READ);
 	if (status != I106_OK){
 		char msg[200] = "Error opening file ";

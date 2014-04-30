@@ -13,24 +13,20 @@ typedef struct {
 	int packets;
 } ChanSpec;
 
-typedef struct {
-	char filename[256];
-	int byte_size;
-	int packets;
-	ChanSpec * channels[0x10000];
-} FileSpec;
-
+// Pause and then exit the program.
 int quit(int status){
 	printf("\n\nPress ENTER to exit");
 	getchar();
 	return status;
 }
 
+// Exit with an error message.
 int error(char msg[]){
 	printf(msg);
 	return quit(1);
 }
 
+// Show the contents of a file.
 int print_results(char filename[], float byte_size, int packets, ChanSpec * channels[]){
 
 	// Show channels
@@ -68,10 +64,10 @@ int print_results(char filename[], float byte_size, int packets, ChanSpec * chan
 	printf("    Packets: %d\n", packets);
 	printf("    Channels: %d\n", i);
 
-	// Wait for explicit exit.
 	return quit(0);
 }
 
+// Find or create a spec for a given channel and data type combination.
 int get_channel_index(ChanSpec * channels[], unsigned int id, unsigned int type){
 	for (int i = 0; i < 0x10000; i++){
 
@@ -92,6 +88,7 @@ int get_channel_index(ChanSpec * channels[], unsigned int id, unsigned int type)
 	}
 }
 
+// Test a CSV string "value" for matches to int "key".
 int match(int key, const char value[]){
 	long *val;
 	char **num;
@@ -99,9 +96,7 @@ int match(int key, const char value[]){
 	strcpy(s1, value);
 	char *t1 = strtok(s1, ",");
 	while (t1 != NULL){
-		//printf("%s ", t1);
 		val = strtol(t1, &num, 0);
-		//printf("%d ?= %d\n", key, val);
 		if (val == key){
 			return 1;
 		}
@@ -112,7 +107,6 @@ int match(int key, const char value[]){
 
 int main(int argc, char ** argv){
 
-	// Parse args and declare variables.
 	DocoptArgs args = docopt(argc, argv, 1, "1");
 	int input_handle;
 	SuI106Ch10Header header;
@@ -120,6 +114,7 @@ int main(int argc, char ** argv){
 	float byte_size = 0.0;
 	static ChanSpec * channels[0x10000];
 
+	// Validate arguments and offer help.
 	if (args.help){
 		printf(args.help_message);
 		return 1;
@@ -139,6 +134,8 @@ int main(int argc, char ** argv){
 
 	// Parse loop.
 	while (1){
+		
+		// Read next header or exit.
 		status = enI106Ch10ReadNextHeader(input_handle, &header);
 		if (status != I106_OK){
 			return print_results(argv[1], byte_size, packets, channels);
@@ -159,6 +156,7 @@ int main(int argc, char ** argv){
 		int i = get_channel_index(channels, header.uChID, header.ubyDataType);
 		channels[i]->packets++;
 
+		// Increment top-level counters.
 		byte_size += header.ulPacketLen;
 		packets++;
 	}

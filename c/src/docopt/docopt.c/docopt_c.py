@@ -173,8 +173,14 @@ if __name__ == '__main__':
     t_defaults = re.sub(r'"(.*?)"', r'(char*) "\1"', t_defaults)
     t_defaults = '\n        '.join(textwrap.wrap(t_defaults, 72))
     t_defaults = ('\n        ' + t_defaults + ',') if t_defaults != '' else ''
-    t_elems_cmds = ',\n        '.join([c_command(cmd) for cmd in (commands)])
-    t_elems_cmds = ('\n        ' + t_elems_cmds) if t_elems_cmds != '' else ''
+    if commands:
+        t_elems_cmds = ',\n        '.join(
+                [c_command(cmd) for cmd in (commands)])
+        t_elems_cmds = (
+                '\n        ' + t_elems_cmds) if t_elems_cmds != '' else ''
+        t_elems_cmds = '= {%s\n}\n' % t_elems_cmds
+    else:
+        t_elems_cmds = '';
     t_elems_args = ',\n        '.join([c_argument(arg) for arg in (arguments)])
     t_elems_args = ('\n        ' + t_elems_args) if t_elems_args != '' else ''
     t_elems_opts = ',\n        '.join([c_option(o) for o in (flags + options)])

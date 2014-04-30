@@ -92,6 +92,24 @@ int get_channel_index(ChanSpec * channels[], unsigned int id, unsigned int type)
 	}
 }
 
+int match(int key, const char value[]){
+	long *val;
+	char **num;
+	char s1[50];
+	strcpy(s1, value);
+	char *t1 = strtok(s1, ",");
+	while (t1 != NULL){
+		//printf("%s ", t1);
+		val = strtol(t1, &num, 0);
+		//printf("%d ?= %d\n", key, val);
+		if (val == key){
+			return 1;
+		}
+		t1 = strtok(NULL, ",");
+	}
+	return 0;
+}
+
 int main(int argc, char ** argv){
 
 	// Parse args and declare variables.
@@ -102,12 +120,20 @@ int main(int argc, char ** argv){
 	float byte_size = 0.0;
 	static ChanSpec * channels[0x10000];
 
+	if (args.help){
+		printf(args.help_message);
+		return 1;
+	}
+	else if (argc < 2){
+		printf(args.usage_pattern);
+		return 1;
+	}
+
 	// Open file for reading.
-	char filename[] = "C:/Users/mcferrill/ATAC/Data/d0001.c10";
-	EnI106Status status = enI106Ch10Open(&input_handle, filename, I106_READ);
+	EnI106Status status = enI106Ch10Open(&input_handle, argv[1], I106_READ);
 	if (status != I106_OK){
 		char msg[200] = "Error opening file ";
-		strcat(msg, filename);
+		strcat(msg, argv[1]);
 		return error(msg);
 	}
 
@@ -115,9 +141,15 @@ int main(int argc, char ** argv){
 	while (1){
 		status = enI106Ch10ReadNextHeader(input_handle, &header);
 		if (status != I106_OK){
-			return print_results(filename, byte_size, packets, channels);
+			return print_results(argv[1], byte_size, packets, channels);
 		}
 
+		// Ensure that we're interested in this particular packet.
+		if (args.exclude && match(header.uChID, args.exclude)){
+			continue;
+		}
+
+		// Track this packet.
 		int i = get_channel_index(channels, header.uChID, header.ubyDataType);
 		channels[i]->packets++;
 

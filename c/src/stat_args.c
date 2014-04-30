@@ -11,10 +11,10 @@
 
 
 typedef struct {
-    /* commands */
-    int show;
     /* arguments */
     char *file;
+    /* options without arguments */
+    int help;
     /* options with arguments */
     char *channel;
     char *exclude;
@@ -28,21 +28,24 @@ const char help_message[] =
 "stat - show details of a chapter 10 file\n"
 "\n"
 "Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]\n"
+"    stat <file> [--channel CHANNEL]... [options]\n"
+"    stat <file> [--exclude CHANNEL]... [options]\n"
+"    stat <file> [--type TYPE]... [options]\n"
+"    stat --help\n"
 "\n"
 "Options:\n"
-"    -c CHANNEL..., --channel CHANNEL...  Specify channels to include(csv).\n"
-"    -e CHANNEL..., --exclude CHANNEL...  Specify channels to ignore (csv).\n"
-"    -t TYPE, --type TYPE                 The types of data to show (csv, may be decimal or hex eg: 0x40).\n"
+"    --help                Show this message.\n"
+"    --channel CHANNEL...  Specify channels to include(csv).\n"
+"    --exclude CHANNEL...  Specify channels to ignore (csv).\n"
+"    --type TYPE           The types of data to show (csv, may be decimal or hex eg: 0x40).\n"
 "";
 
 const char usage_pattern[] =
 "Usage:\n"
-"    stat show <file> [-c CHANNEL|--channel CHANNEL]... [options]\n"
-"    stat show <file> [-e CHANNEL|--exclude CHANNEL]... [options]\n"
-"    stat show <file> [-t TYPE|--type TYPE]... [options]";
+"    stat <file> [--channel CHANNEL]... [options]\n"
+"    stat <file> [--exclude CHANNEL]... [options]\n"
+"    stat <file> [--type TYPE]... [options]\n"
+"    stat --help";
 
 typedef struct {
     const char *name;
@@ -257,6 +260,8 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
                    !strcmp(option->olong, "--version")) {
             printf("%s\n", version);
             return 1;
+        } else if (!strcmp(option->olong, "--help")) {
+            args->help = option->value;
         } else if (!strcmp(option->olong, "--channel")) {
             if (option->argument)
                 args->channel = option->argument;
@@ -271,9 +276,6 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
     /* commands */
     for (i=0; i < elements->n_commands; i++) {
         command = &elements->commands[i];
-        if (!strcmp(command->name, "show")) {
-            args->show = command->value;
-        }
     }
     /* arguments */
     for (i=0; i < elements->n_arguments; i++) {
@@ -292,22 +294,22 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        0, NULL, NULL, NULL, NULL,
+        NULL, 0, NULL, NULL, NULL,
         usage_pattern, help_message
     };
     Tokens ts;
-    Command commands[] = {
-        {"show", 0}
-    };
+    Command commands[100];
+    //};
     Argument arguments[] = {
         {"<file>", NULL, NULL}
     };
     Option options[] = {
-        {"-c", "--channel", 1, 0, NULL},
-        {"-e", "--exclude", 1, 0, NULL},
-        {"-t", "--type", 1, 0, NULL}
+        {NULL, "--help", 0, 0, NULL},
+        {NULL, "--channel", 1, 0, NULL},
+        {NULL, "--exclude", 1, 0, NULL},
+        {NULL, "--type", 1, 0, NULL}
     };
-    Elements elements = {1, 1, 3, commands, arguments, options};
+    Elements elements = {0, 1, 4, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))

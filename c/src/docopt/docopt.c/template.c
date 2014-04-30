@@ -258,8 +258,8 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         usage_pattern, help_message
     };
     Tokens ts;
-    Command commands[] = {$elems_cmds
-    };
+    Command commands[100]$elems_cmds;
+    //};
     Argument arguments[] = {$elems_args
     };
     Option options[] = {$elems_opts

@@ -148,6 +148,12 @@ int main(int argc, char ** argv){
 		if (args.exclude && match(header.uChID, args.exclude)){
 			continue;
 		}
+		else if (args.channel && !match(header.uChID, args.channel)){
+			continue;
+		}
+		else if (args.type && !match(header.ubyDataType, args.type)){
+			continue;
+		}
 
 		// Track this packet.
 		int i = get_channel_index(channels, header.uChID, header.ubyDataType);

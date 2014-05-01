@@ -1,0 +1,13 @@
+copy - create a complete or partial duplicate of a chapter 10 file
+
+Usage:
+    copy <src> <dst> [--channel CHANNEL]... [options]
+    copy <src> <dst> [--exclude CHANNEL]... [options]
+    copy <src> <dst> [--type TYPE]... [options]
+    copy --help
+
+Options:
+    --help                Show this message.
+    --channel CHANNEL...  Specify channels to include(csv).
+    --exclude CHANNEL...  Specify channels to ignore (csv).
+    --type TYPE           The types of data to show (csv, may be decimal or hex eg: 0x40).

@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E386DF33-D03A-46D5-AB52-E702DCF877E4}</ProjectGuid>
-    <RootNamespace>stat</RootNamespace>
+    <ProjectGuid>{78986E15-4B28-4262-B7A7-7D8E6FC9EFAB}</ProjectGuid>
+    <RootNamespace>copy</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>c:\users\mcferrill\ATAC\Programming Handbook\samples\c\src;C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\irig106lib\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\irig106lib\src;C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -80,10 +80,11 @@
     <ClCompile Include="..\irig106lib\src\irig106ch10.c" />
     <ClCompile Include="..\irig106lib\src\irig106cl.cpp" />
     <ClCompile Include="..\src\common.c" />
-    <ClCompile Include="..\src\stat.c" />
+    <ClCompile Include="..\src\copy.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\irig106lib\src\config.h" />
+    <ClInclude Include="..\irig106lib\src\i106_data_stream.h" />
     <ClInclude Include="..\irig106lib\src\i106_decode_1394.h" />
     <ClInclude Include="..\irig106lib\src\i106_decode_1553f1.h" />
     <ClInclude Include="..\irig106lib\src\i106_decode_analog.h" />

@@ -12,6 +12,9 @@ int main(int argc, char ** argv){
 	DocoptArgs args = docopt(argc, argv, 1, "1");
 	int input_handle;
 	SuI106Ch10Header header;
+	FILE *output;
+	int packets = 0;
+	void * buffer = malloc(24);
 
 	// Validate arguments and offer help.
 	if (argc < 3){
@@ -22,9 +25,15 @@ int main(int argc, char ** argv){
 	// Open file for reading.
 	EnI106Status status = enI106Ch10Open(&input_handle, argv[1], I106_READ);
 	if (status != I106_OK){
-		char msg[200] = "Error opening file ";
+		char msg[200] = "Error opening source file.";
 		strcat(msg, argv[1]);
 		return error(msg);
+	}
+
+	// Open output file.
+	output = fopen(argv[2], "w");
+	if (output == NULL){
+		return error("Couldn't open destination file.");
 	}
 
 	// Parse loop.
@@ -47,6 +56,18 @@ int main(int argc, char ** argv){
 		else if (args.type && !match(header.ubyDataType, args.type)){
 			continue;
 		}
+
+		// Read packet data.
+		buffer = realloc(buffer, header.ulPacketLen);
+		status = enI106Ch10ReadDataFile(input_handle, header.ulPacketLen, buffer);
+		if (status != I106_OK){
+			printf("Error reading packet.");
+			continue;
+		}
+
+		// Write packet to file.
+		fwrite(&header, sizeof(header), 1, output);
+		fwrite(&buffer, header.ulPacketLen, 1, output);
 	}
 
 }

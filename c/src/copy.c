@@ -25,7 +25,7 @@ int main(int argc, char ** argv){
 	// Open file for reading.
 	EnI106Status status = enI106Ch10Open(&input_handle, argv[1], I106_READ);
 	if (status != I106_OK){
-		char msg[200] = "Error opening source file.";
+		char msg[200] = "Error opening source file: ";
 		strcat(msg, argv[1]);
 		return error(msg);
 	}
@@ -35,6 +35,23 @@ int main(int argc, char ** argv){
 	if (output == NULL){
 		return error("Couldn't open destination file.");
 	}
+
+	// Copy TMATS
+	status = enI106Ch10ReadNextHeader(input_handle, &header);
+	if (status != I106_OK){
+		printf("Finished");
+		return quit(0);
+	}
+	buffer = realloc(buffer, header.ulPacketLen);
+	status = enI106Ch10ReadDataFile(input_handle, header.ulPacketLen, buffer);
+	if (status != I106_OK){
+		printf("Error reading TMATS.");
+		return quit(0);
+	}
+
+	// Write TMATS out.
+	fwrite(&header, sizeof(header), 1, output);
+	fwrite(&buffer, header.ulPacketLen, 1, output);
 
 	// Parse loop.
 	while (1){

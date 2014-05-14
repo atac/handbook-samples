@@ -1,0 +1,16 @@
+
+dump - export data from a chapter 10 file
+
+Usage:
+    dump <src> [--output OUT]... [options]
+    dump <src> [--channel CHANNEL]... [options]
+    dump <src> [--exclude CHANNEL]... [options]
+    dump <src> [--type TYPE]... [options]
+    dump --help
+
+Options:
+    --help                Show this message.
+    --output OUT          The directory to place files [default: .].
+    --channel CHANNEL...  Specify channels to include(csv).
+    --exclude CHANNEL...  Specify channels to ignore (csv).
+    --type TYPE           The types of data to show (csv, may be decimal or hex eg: 0x40).

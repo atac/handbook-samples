@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <intrin.h>
 
 #include "irig106ch10.h"
 #include "dump_args.c"
@@ -14,6 +15,12 @@ int main(int argc, char ** argv){
 	SuI106Ch10Header header;
 	int packets = 0;
 	void * buffer = malloc(24);
+	FILE *out[0x10000];
+
+	// Initialize out to NULLs.
+	for (int i = 0; i < 0x10000; i++){
+		out[i] = NULL;
+	}
 
 	// Validate arguments and offer help.
 	if (argc < 2){
@@ -50,7 +57,41 @@ int main(int argc, char ** argv){
 			continue;
 		}
 
-		// Export packet data...
+		// Get the correct filename for this channel.
+		char filename[10000];
+		strcpy(filename, args.output);
+		char channel[5];
+		sprintf(channel, "/%d", header.uChID);
+		strcat(filename, channel);
+
+		// Check for video (byte-swap required)
+		if (0x3F < header.ubyDataType < 0x43){
+			strcat(filename, ".mpg");
+		}
+
+		// Ensure an output file is open for this channel.
+		if (out[header.uChID] == NULL){
+			out[header.uChID] = fopen(filename, "w");
+
+			if (out[header.uChID] == NULL){
+				printf("Error opening output file: %s", filename);
+				return quit(1);
+			}
+		}
+
+		// Read packet data.
+		buffer = realloc(buffer, header.ulPacketLen);
+		status = enI106Ch10ReadDataFile(input_handle, header.ulPacketLen, buffer);
+		if (status != I106_OK){
+			printf("Error reading packet.");
+			continue;
+		}
+
+		unsigned long(*array)[150] = (unsigned long(*)[150]) buffer;
+
+		// Write packet to file.
+		fwrite(&buffer, header.ulPacketLen, 1, out[header.uChID]);
+
 	}
 
 	return quit(0);

@@ -9,12 +9,24 @@
 #include "dump_args.c"
 #include "common.h"
 
+// Byteswap a buffer.
+void swap(char *p, int len) {
+	int i;
+	char tmp;
+	for (i = 0; i < (len / 2); i++) {
+		tmp = p[i * 2];
+		p[i * 2] = p[(i * 2) + 1];
+		p[(i * 2) + 1] = tmp;
+	}
+}
+
 int main(int argc, char ** argv){
 	DocoptArgs args = docopt(argc, argv, 1, "1");
 	int input_handle;
 	SuI106Ch10Header header;
 	int packets = 0;
-	void * buffer = malloc(24);
+	char * buffer = malloc(24);
+	char * ts = malloc(24);
 	FILE *out[0x10000];
 
 	// Initialize out to NULLs.
@@ -87,10 +99,20 @@ int main(int argc, char ** argv){
 			continue;
 		}
 
-		unsigned long(*array)[150] = (unsigned long(*)[150]) buffer;
+		// Ignore first 4 bytes (CSDW)
+		int offset = 4;
+		ts = realloc(ts, header.ulDataLen - offset);
+		for (int i = offset; i <= header.ulDataLen + 1; i++){
+			ts[i - offset] = buffer[i];
+		}
+		swap(ts, header.ulDataLen - offset);
+		fwrite(ts, header.ulDataLen - offset, 1, out[header.uChID]);
+		continue;
+
+		//swap(buffer, header.ulDataLen);
 
 		// Write packet to file.
-		fwrite(&buffer, header.ulPacketLen, 1, out[header.uChID]);
+		fwrite(buffer, header.ulDataLen, 1, out[header.uChID]);
 
 	}
 

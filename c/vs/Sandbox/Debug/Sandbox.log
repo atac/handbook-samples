@@ -1,0 +1,14 @@
+﻿Build started 6/4/2014 10:54:13 AM.
+     1>Project "C:\Users\mcferrill\Sandbox\Sandbox\Sandbox\Sandbox.vcxproj" on node 2 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(935,5): warning MSB8027: Two or more files with the name of moc_sandbox.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are GeneratedFiles\Debug\moc_sandbox.cpp, GeneratedFiles\Release\moc_sandbox.cpp.
+     1>Link:
+         C:\Program Files (x86)\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\vs\Win32\Debug\\Sandbox.exe" /NOLOGO /LIBPATH:C:\Qt\Qt5.3.0\5.3\msvc2013\lib qtmaind.lib Qt5Cored.lib Qt5Guid.lib Qt5Widgetsd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\vs\Win32\Debug\Sandbox.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\vs\Win32\Debug\Sandbox.lib" /MACHINE:X86 /SAFESEH Debug\moc_sandbox.obj
+         Debug\qrc_sandbox.obj
+         Debug\main.obj
+         Debug\sandbox.obj
+         Sandbox.vcxproj -> C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\vs\Win32\Debug\Sandbox.exe
+     1>Done Building Project "C:\Users\mcferrill\Sandbox\Sandbox\Sandbox\Sandbox.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.43

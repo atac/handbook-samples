@@ -13,7 +13,7 @@ public:
 	~video();
 
 private:
-	Ui::videoClass ui;
+	Ui::MainWindow ui;
 };
 
 #endif // VIDEO_H

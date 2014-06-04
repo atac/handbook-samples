@@ -1,10 +1,10 @@
-#include "sandbox.h"
+#include "video.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	Sandbox w;
+	video w;
 	w.show();
 	return a.exec();
 }

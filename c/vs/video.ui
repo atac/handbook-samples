@@ -1,8 +1,8 @@
 <UI version="4.0" >
- <class>SandboxClass</class>
- <widget class="QMainWindow" name="SandboxClass" >
+ <class>videoClass</class>
+ <widget class="QMainWindow" name="videoClass" >
   <property name="objectName" >
-   <string notr="true">SandboxClass</string>
+   <string notr="true">videoClass</string>
   </property>
   <property name="geometry" >
    <rect>
@@ -13,7 +13,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Sandbox</string>
+   <string>video</string>
   </property>
   <widget class="QMenuBar" name="menuBar" />
   <widget class="QToolBar" name="mainToolBar" />
@@ -23,7 +23,7 @@
  <layoutDefault spacing="6" margin="11" />
  <pixmapfunction></pixmapfunction>
  <resources>
-   <include location="sandbox.qrc"/>
+   <include location="video.qrc"/>
  </resources>
  <connections/>
 </UI>

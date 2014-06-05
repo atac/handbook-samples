@@ -10,10 +10,16 @@ class video : public QMainWindow
 
 public:
 	video(QWidget *parent = 0);
+	void init();
 	~video();
+
+public slots:
+	void play();
+	void menu_select(QAction*);
 
 private:
 	Ui::MainWindow ui;
+
 };
 
 #endif // VIDEO_H

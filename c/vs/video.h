@@ -10,7 +10,11 @@ class video : public QMainWindow
 
 public:
 	video(QWidget *parent = 0);
+	void * vid;
 	void init();
+	void video::closeEvent(QCloseEvent *event);
+	void load_file(QString filename);
+	void load_file();
 	~video();
 
 public slots:
@@ -19,6 +23,7 @@ public slots:
 
 private:
 	Ui::MainWindow ui;
+	QString filename;
 
 };
 

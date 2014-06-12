@@ -2,6 +2,7 @@
 #define VIDEO_H
 
 #include <QtWidgets/QMainWindow>
+#include <qprocess.h>
 #include "ui_video.h"
 
 class video : public QMainWindow
@@ -10,7 +11,6 @@ class video : public QMainWindow
 
 public:
 	video(QWidget *parent = 0);
-	void * vid;
 	void init();
 	void video::closeEvent(QCloseEvent *event);
 	void load_file(QString filename);
@@ -22,6 +22,7 @@ public slots:
 	void menu_select(QAction*);
 
 private:
+	QProcess *player;
 	Ui::MainWindow ui;
 	QString filename;
 

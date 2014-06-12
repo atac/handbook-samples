@@ -26,13 +26,13 @@ video::video(QWidget *parent)
 	QMPwidget * vid = new QMPwidget;
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
 	vid->start(QStringList("13.mpg"));
+	player = vid->process();
 
 }
 
 void video::closeEvent(QCloseEvent *event){
-
+	player->close();
 }
-
 
 // Destructor
 video::~video(){}
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 	video w;
-	//w.show();
+	w.show();
 
 	return a.exec();
 }

@@ -23,11 +23,28 @@ video::video(QWidget *parent)
 	QMenuBar * menubar = this->findChild<QMenuBar*>(QString("menubar"));
 	QObject::connect(menubar, &QMenuBar::triggered, this, &video::menu_select);
 
-	QMPwidget * vid = new QMPwidget;
+	QGridLayout * grid = this->findChild<QGridLayout*>(QString("grid"));
+
+	QFrame * container = new QFrame();
+	QMPwidget * vid = new QMPwidget(container);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
-	vid->start(QStringList("13.mpg"));
+
+	//vid->setVideoOutput(QString("directx:noaccel"));
+	QString winid = QString::number((int)(container->winId()));
+	vid->start(QStringList("-wid") << winid);
+	vid->load("13.mpg");
+	grid->addWidget(container, 0, 0);
+
 	player = vid->process();
 
+}
+
+void video::resizeEvent(QResizeEvent * event){
+	/*
+	QRect geo = this->geometry();
+	QRect grid_size = QRect(QPoint(0, 0), QPoint(geo.right, geo.bottom - 200));
+	grid->setGeometry(grid_size);
+	//*/
 }
 
 void video::closeEvent(QCloseEvent *event){

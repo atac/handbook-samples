@@ -11,9 +11,8 @@
 
 // Byteswap a buffer.
 void swap(char *p, int len) {
-	int i;
 	char tmp;
-	for (i = 0; i < (len / 2); i++) {
+	for (int i = 0; i < ((len / 2)); i++) {
 		tmp = p[i * 2];
 		p[i * 2] = p[(i * 2) + 1];
 		p[(i * 2) + 1] = tmp;
@@ -26,7 +25,7 @@ int main(int argc, char ** argv){
 	SuI106Ch10Header header;
 	int packets = 0;
 	char * buffer = malloc(24);
-	char * ts = malloc(24);
+	char * ts = malloc(188);
 	FILE *out[0x10000];
 
 	// Initialize out to NULLs.
@@ -83,7 +82,7 @@ int main(int argc, char ** argv){
 
 		// Ensure an output file is open for this channel.
 		if (out[header.uChID] == NULL){
-			out[header.uChID] = fopen(filename, "w");
+			out[header.uChID] = fopen(filename, "wb");
 
 			if (out[header.uChID] == NULL){
 				printf("Error opening output file: %s", filename);
@@ -100,19 +99,17 @@ int main(int argc, char ** argv){
 		}
 
 		// Ignore first 4 bytes (CSDW)
-		int offset = 4;
-		ts = realloc(ts, header.ulDataLen - offset);
-		for (int i = offset; i <= header.ulDataLen + 1; i++){
-			ts[i - offset] = buffer[i];
+		int datalen = header.ulDataLen - 4;
+		if (0x3F < header.ubyDataType < 0x43){
+			for (int i = 0; i < (datalen / 188); i++){
+				memcpy(ts, buffer + 4 + (i * 188), 188);
+				swap(ts, 188);
+				fwrite(ts, 1, 188, out[header.uChID]);
+			}
 		}
-		swap(ts, header.ulDataLen - offset);
-		fwrite(ts, header.ulDataLen - offset, 1, out[header.uChID]);
-		continue;
-
-		//swap(buffer, header.ulDataLen);
-
-		// Write packet to file.
-		fwrite(buffer, header.ulDataLen, 1, out[header.uChID]);
+		else {
+			fwrite(buffer + 4, 1, datalen, out[header.uChID]);
+		}
 
 	}
 

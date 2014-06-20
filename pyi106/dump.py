@@ -60,7 +60,7 @@ if __name__ == '__main__':
             if 0x3F < PktIO.Header.DataType < 0x43:
                 filename += '.mpg'
 
-            # Ensure an file is open (and will close) for a given channel.
+            # Ensure a file is open (and will close) for a given channel.
             if filename not in out:
 
                 # Don't overwrite without explicit direction.
@@ -71,10 +71,8 @@ if __name__ == '__main__':
                 out[filename] = open(filename, 'wb')
                 atexit.register(out[filename].close)
 
-            out[filename].write(header)
-
-            data = PktIO.Buffer.raw[:PktIO.Header.PacketLen - len(header)]
-            if 0x3F < PktIO.Header.DataType < 0x43:
+            data = PktIO.Buffer.raw[4:PktIO.Header.PacketLen - 4]
+            if bool(0x3F < PktIO.Header.DataType < 0x43):
                 for i in range(len(data) / 188):
                     body = array('H', data[i * 188:(i + 1) * 188])
                     body.byteswap()

@@ -45,7 +45,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;QT_MULTIMEDIA_LIB;QT_MULTIMEDIAWIDGETS_LIB;QT_NETWORK_LIB;QT_OPENGL_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Qt\Qt5.3.0\5.3\msvc2013\include\QtANGLE;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtOpenGL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Qt\Qt5.3.0\5.3\msvc2013\include\QtANGLE;C:\Users\mcferrill\ATAC\Programming Handbook\samples\c\irig106lib\src;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtMultimediaWidgets;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtOpenGL;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -77,6 +77,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\qmpwidget.cpp" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_1553f1.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_arinc429.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_discrete.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_ethernet.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_index.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_time.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_tmats.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_uart.c" />
+    <ClCompile Include="..\irig106lib\src\i106_decode_video.c" />
+    <ClCompile Include="..\irig106lib\src\i106_index.c" />
+    <ClCompile Include="..\irig106lib\src\i106_time.c" />
+    <ClCompile Include="..\irig106lib\src\irig106ch10.c" />
+    <ClCompile Include="..\irig106lib\src\irig106cl.cpp" />
     <ClCompile Include="..\src\video.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_qmpwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -121,12 +134,35 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_OPENGL_LIB -DQT_MULTIMEDIAWIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtMultimediaWidgets"</Command>
     </CustomBuild>
+    <ClInclude Include="..\irig106lib\src\config.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_1394.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_1553f1.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_analog.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_arinc429.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_comp_gen_0.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_discrete.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_ethernet.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_events.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_image.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_index.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_message.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_parallel.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_pcm.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_time.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_tmats.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_uart.h" />
+    <ClInclude Include="..\irig106lib\src\i106_decode_video.h" />
+    <ClInclude Include="..\irig106lib\src\i106_index.h" />
+    <ClInclude Include="..\irig106lib\src\i106_time.h" />
+    <ClInclude Include="..\irig106lib\src\irig106ch10.h" />
+    <ClInclude Include="..\irig106lib\src\irig106cl.h" />
+    <ClInclude Include="..\irig106lib\src\stdint.h" />
     <ClInclude Include="GeneratedFiles\ui_video.h" />
     <CustomBuild Include="video.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing video.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_MULTIMEDIAWIDGETS_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB  "-IC:\Qt\Qt5.3.0\5.3\msvc2013\include\QtANGLE" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtMultimediaWidgets" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtOpenGL"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_MULTIMEDIAWIDGETS_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB  "-IC:\Qt\Qt5.3.0\5.3\msvc2013\include\QtANGLE" "-IC:\Users\mcferrill\ATAC\Programming Handbook\samples\c\irig106lib\src" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtMultimediaWidgets" "-I$(QTDIR)\include\QtNetwork" "-I$(QTDIR)\include\QtOpenGL"</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing video.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
@@ -163,6 +199,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\%(Filename).moc</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "..\src\qmpwidget.cpp" -o ".\GeneratedFiles\$(ConfigurationName)\%(Filename).moc"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_OPENGL_LIB -DQT_MULTIMEDIAWIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtMultimediaWidgets"</Command>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\irig106lib\src\irig106dll.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

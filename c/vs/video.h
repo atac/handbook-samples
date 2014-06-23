@@ -3,15 +3,21 @@
 
 #include <QtWidgets/QMainWindow>
 #include <qprocess.h>
+#include <qthread.h>
 #include "ui_video.h"
 
-class Player : public QWidget {
-public:
-	Player(QWidget * parent);
-	Player();
+class Loader : public QThread {
+	Q_OBJECT
 
-private:
-	QProcess * process;
+	public:
+		Loader(QWidget * parent, QString filename);
+		QString filename, tmp;
+		int finished = 1, size = 0, pos = 0;
+		void run();
+		void quit();
+
+	signals:
+		void done(const QString &result);
 };
 
 class video : public QMainWindow
@@ -36,7 +42,7 @@ private:
 	QProcess * player;
 	QGridLayout * grid;
 	QString filename;
-
+	Loader * loader;
 };
 
 #endif // VIDEO_H

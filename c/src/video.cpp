@@ -1,16 +1,49 @@
 #define NOMINMAX
+
+#include <stdlib.h>
+#include <stdio.h>
 #include <Windows.h>
+
 #include <gl\GLU.h>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFileDialog>
 #include <QtMultimedia>
 #include <QMediaPlayer>
 #include <qvideowidget.h>
-#include <stdio.h>
+#include <qthread.h>
+
+#include "stdint.h"
+#include "irig106ch10.h"
+
 #include "video.h"
 
 #include "qmpwidget.h"
 #include "qmpwidget.cpp"
+
+
+// The loader thread //
+
+Loader::Loader(QWidget * parent, QString filename){
+	this->filename = filename;
+}
+
+void Loader::run(){
+	FILE * out[0x10000];
+	for (int i = 0; i < 0x10000; i++){
+		out[i] = NULL;
+	}
+
+	int input_handle;
+	const char* path = this->filename.toUtf8();
+	Irig106::EnI106Status status = Irig106::enI106Ch10Open(&input_handle, path, Irig106::I106_READ);
+	if (status != Irig106::I106_OK){
+		qCritical() << "Error opening source file: ";
+		return;
+	}
+}
+
+
+// The Video Player //
 
 // Constructor
 video::video(QWidget *parent)
@@ -32,7 +65,7 @@ video::video(QWidget *parent)
 	//vid->setVideoOutput(QString("directx:noaccel"));
 	QString winid = QString::number((int)(container->winId()));
 	vid->start(QStringList("-wid") << winid);
-	vid->load("13.mpg");
+	vid->load("14.mpg");
 	grid->addWidget(container, 0, 0);
 
 	player = vid->process();
@@ -65,7 +98,10 @@ void video::menu_select(QAction * action){
 }
 
 // Start C10>video export and initialize screens for each video channel.
-void video::load_file(QString filename){}
+void video::load_file(QString filename){
+	this->loader = new Loader(this, filename);
+	this->loader->start();
+}
 
 // Use a QFileDialog to select and load a file.
 void video::load_file(){
@@ -82,6 +118,10 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	video w;
 	w.show();
+
+	if (argc > 1){
+		w.load_file(argv[1]);
+	}
 
 	return a.exec();
 }

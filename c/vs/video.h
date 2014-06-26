@@ -6,13 +6,25 @@
 #include <qthread.h>
 #include "ui_video.h"
 
+class Ticker : public QThread {
+	Q_OBJECT
+
+	public:
+		int running;
+		void run();
+
+	signals:
+		void tick();
+};
+
 class Loader : public QThread {
 	Q_OBJECT
 
 	public:
 		Loader(QWidget * parent, QString filename);
 		QString filename, tmp;
-		int finished = 1, size = 0, pos = 0;
+		int finished = 1;
+		__int64 size, pos;
 		void run();
 		void quit();
 
@@ -26,23 +38,24 @@ class video : public QMainWindow
 
 public:
 	video(QWidget *parent = 0);
-	void resizeEvent(QResizeEvent * event);
 	void init();
 	void video::closeEvent(QCloseEvent *event);
 	void load_file(QString filename);
 	void load_file();
-	~video();
 
 public slots:
 	void play();
+	void tick();
 	void menu_select(QAction*);
 
 private:
 	Ui::MainWindow ui;
+	QProgressBar * load_meter;
 	QProcess * player;
 	QGridLayout * grid;
 	QString filename;
 	Loader * loader;
+	Ticker * ticker;
 };
 
 #endif // VIDEO_H

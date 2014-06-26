@@ -244,7 +244,7 @@ void video::menu_select(QAction * action){
 	}
 }
 
-// Start C10>video export and initialize screens for each video channel.
+// Start C10 video export and initialize screens for each video channel.
 void video::load_file(QString filename){
 	this->loader = new Loader(this, filename);
 	this->loader->start();
@@ -254,6 +254,14 @@ void video::load_file(QString filename){
 	// Delete existing video widgets.
 
 	// Add new videos from ./tmp
+	WIN32_FIND_DATA fd;
+	HANDLE h = FindFirstFile((LPCWSTR) L"tmp\\*", &fd);
+	do {
+		QString name = QString::fromWCharArray(fd.cFileName);
+		qDebug() << QString("tmp/") + name;
+		//@todo: this->add_video(QString("tmp/") + name);
+		//@todo: add to audio options
+	} while (FindNextFile(h, &fd) != 0);
 }
 
 // Use a QFileDialog to select and load a file.

@@ -50,6 +50,7 @@ public slots:
 
 private:
 	Ui::MainWindow ui;
+	void add_video(QString path);
 	QProgressBar * load_meter;
 	QProcess * player;
 	QGridLayout * grid;

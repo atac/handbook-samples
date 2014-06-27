@@ -97,8 +97,6 @@ void Loader::run(){
 	_fseeki64(f, 0, SEEK_END);
 	size = _ftelli64(f);
 
-	//size = file_size((LPCWSTR)this->filename.utf16());
-
 	// Open input file.
 	int input_handle;
 	Irig106::EnI106Status status = Irig106::enI106Ch10Open(&input_handle, this->filename.toUtf8().constData(), Irig106::I106_READ);
@@ -185,53 +183,40 @@ video::video(QWidget *parent)
 	QMenuBar * menubar = this->findChild<QMenuBar*>(QString("menubar"));
 	connect(menubar, &QMenuBar::triggered, this, &video::menu_select);
 
-	const QAbstractButton* play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
+	const QAbstractButton * play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
 	connect(play_btn, &QAbstractButton::click, this, &video::play);
 
 	QProgressBar * load_meter = this->findChild<QProgressBar*>("load_meter");
-
-	QGridLayout * grid = this->findChild<QGridLayout*>(QString("grid"));
-
 
 	// Background events
 	ticker = new Ticker;
 	connect(ticker, &Ticker::tick, this, &video::tick);
 	ticker->start();
-	
-	
-	// Individual video code.
-
-	QFrame * container = new QFrame();
-	QMPwidget * vid = new QMPwidget(container);
-	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
-
-	//vid->setVideoOutput(QString("directx:noaccel"));
-	QString winid = QString::number((int)(container->winId()));
-	vid->start(QStringList("-wid") << winid);
-	//vid->load("14.mpg");
-	grid->addWidget(container, 0, 0);
-
-	player = vid->process();
-
 }
 
+// Background updates (once per second).
 void video::tick(){
+
+	// Loader progress bar and label.
+	QLabel * load_label = this->findChild<QLabel*>("load_label");
+	QProgressBar * load_meter = this->findChild<QProgressBar*>("load_meter");
+	int percent = 100;
 	if (this->loader != NULL && !this->loader->isFinished()){
-		QLabel * load_label = this->findChild<QLabel*>("load_label");
 		char pos[0x1000];
 		itoa(this->loader->pos / 1024 / 1024, pos, 10);
 		char size[0x1000];
 		itoa(this->loader->size / 1024 / 1024, size, 10);
 		load_label->setText("Read " + QString(pos) + " / " + QString(size) + " mb");
-
-		QProgressBar * load_meter = this->findChild<QProgressBar*>("load_meter");
-		int percent = ((float) this->loader->pos / (float) this->loader->size) * 100;
-		load_meter->setValue(percent);
+		percent = ((float) this->loader->pos / (float) this->loader->size) * 100;
 	}
+	else {
+		load_label->setText("Done");
+	}
+	load_meter->setValue(percent);
 }
 
 void video::closeEvent(QCloseEvent *event){
-	player->close();
+	//player->close();
 }
 
 // Navigation menu events
@@ -244,6 +229,35 @@ void video::menu_select(QAction * action){
 	}
 }
 
+// Create and add a widget for a single video.
+void video::add_video(QString path){
+	qDebug() << QString("Adding video: ") + path;
+
+	// Create widget and player.
+	QFrame * container = new QFrame();
+	QMPwidget * vid = new QMPwidget(container);
+	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
+	vid->start(QStringList("-wid") << QString::number((int)(container->winId())));
+	vid->load(path);
+	vid->writeCommand(QString("volume 0 1"));
+
+	// Find place in grid and add widget to window.
+	QGridLayout * grid = this->findChild<QGridLayout*>(QString("grid"));
+	int x = 0, y = grid->rowCount() - 1;
+	if (y < 0){
+		y = 0;
+	}
+	while (grid->itemAtPosition(y, x) != NULL){
+		if (x == 2){
+			x = 0;
+			y++;
+			continue;
+		}
+		x++;
+	}
+	grid->addWidget(container, x, y);
+}
+
 // Start C10 video export and initialize screens for each video channel.
 void video::load_file(QString filename){
 	this->loader = new Loader(this, filename);
@@ -251,15 +265,14 @@ void video::load_file(QString filename){
 
 	Sleep(250);
 	
-	// Delete existing video widgets.
+	//@todo: Delete existing video widgets.
 
 	// Add new videos from ./tmp
 	WIN32_FIND_DATA fd;
-	HANDLE h = FindFirstFile((LPCWSTR) L"tmp\\*", &fd);
+	HANDLE h = FindFirstFile((LPCWSTR) L"tmp\\*.mpg", &fd);
 	do {
 		QString name = QString::fromWCharArray(fd.cFileName);
-		qDebug() << QString("tmp/") + name;
-		//@todo: this->add_video(QString("tmp/") + name);
+		this->add_video(QString("tmp/") + name);
 		//@todo: add to audio options
 	} while (FindNextFile(h, &fd) != 0);
 }

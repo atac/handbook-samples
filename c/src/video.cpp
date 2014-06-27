@@ -58,33 +58,6 @@ Loader::Loader(QWidget * parent, QString filename){
 	this->size = 0;
 }
 
-int FileSize64(const char * szFileName)
-{
-	struct _stat64 fileStat;
-	int err = _stat64(szFileName, &fileStat);
-	if (0 != err) return 0;
-	return fileStat.st_size;
-}
-
-int file_size(LPCWSTR filename){
-	// Opening the existing file
-	HANDLE hFile1 = CreateFile(filename, // file to open
-		GENERIC_READ, // open for reading
-		FILE_SHARE_READ, // share for reading
-		NULL, // default security
-		OPEN_EXISTING, // existing file only
-		FILE_ATTRIBUTE_NORMAL,// normal file
-		NULL); // no attribute template
-
-	if (hFile1 == INVALID_HANDLE_VALUE)
-	{
-		qCritical("Couldn't open file.");
-		return -1;
-	}
-	DWORD dwFileSize = GetFileSize(hFile1, NULL);
-	return (int)dwFileSize;
-}
-
 void Loader::run(){
 	// Create output handles
 	FILE * out[0x1000];
@@ -96,6 +69,7 @@ void Loader::run(){
 	FILE * f = fopen(this->filename.toUtf8().constData(), "rb");
 	_fseeki64(f, 0, SEEK_END);
 	size = _ftelli64(f);
+	fclose(f);
 
 	// Open input file.
 	int input_handle;
@@ -213,10 +187,6 @@ void video::tick(){
 		load_label->setText("Done");
 	}
 	load_meter->setValue(percent);
-}
-
-void video::closeEvent(QCloseEvent *event){
-	//player->close();
 }
 
 // Navigation menu events

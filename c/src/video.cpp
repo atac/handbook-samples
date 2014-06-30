@@ -201,8 +201,6 @@ void video::menu_select(QAction * action){
 
 // Create and add a widget for a single video.
 void video::add_video(QString path){
-	qDebug() << QString("Adding video: ") + path;
-
 	// Create widget and player.
 	QFrame * container = new QFrame();
 	QMPwidget * vid = new QMPwidget(container);
@@ -217,7 +215,7 @@ void video::add_video(QString path){
 	if (y < 0){
 		y = 0;
 	}
-	while (grid->itemAtPosition(y, x) != NULL){
+	while (grid->itemAtPosition(y, x) != 0){
 		if (x == 2){
 			x = 0;
 			y++;
@@ -225,7 +223,8 @@ void video::add_video(QString path){
 		}
 		x++;
 	}
-	grid->addWidget(container, x, y);
+
+	grid->addWidget(container, y, x);
 }
 
 // Start C10 video export and initialize screens for each video channel.

@@ -149,7 +149,6 @@ video::video(QWidget *parent)
 	: QMainWindow(parent)
 {
 
-	
 	// Set up UI
 	
 	ui.setupUi(this);
@@ -157,8 +156,10 @@ video::video(QWidget *parent)
 	QMenuBar * menubar = this->findChild<QMenuBar*>(QString("menubar"));
 	connect(menubar, &QMenuBar::triggered, this, &video::menu_select);
 
+	this->grid = this->findChild<QGridLayout*>(QString("grid"));
+
 	const QAbstractButton * play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
-	connect(play_btn, &QAbstractButton::click, this, &video::play);
+	connect(play_btn, &QAbstractButton::clicked, this, &video::play);
 
 	QProgressBar * load_meter = this->findChild<QProgressBar*>("load_meter");
 
@@ -206,16 +207,14 @@ void video::add_video(QString path){
 	QMPwidget * vid = new QMPwidget(container);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
 	vid->start(QStringList("-wid") << QString::number((int)(container->winId())));
-	vid->load(path);
-	vid->writeCommand(QString("volume 0 1"));
+	vid->writeCommand(QString("pausing_keep_force loadfile ") + path);
 
 	// Find place in grid and add widget to window.
-	QGridLayout * grid = this->findChild<QGridLayout*>(QString("grid"));
-	int x = 0, y = grid->rowCount() - 1;
+	int x = 0, y = this->grid->rowCount() - 1;
 	if (y < 0){
 		y = 0;
 	}
-	while (grid->itemAtPosition(y, x) != 0){
+	while (this->grid->itemAtPosition(y, x) != 0){
 		if (x == 2){
 			x = 0;
 			y++;
@@ -224,7 +223,7 @@ void video::add_video(QString path){
 		x++;
 	}
 
-	grid->addWidget(container, y, x);
+	this->grid->addWidget(container, y, x);
 }
 
 // Start C10 video export and initialize screens for each video channel.
@@ -232,9 +231,16 @@ void video::load_file(QString filename){
 	this->loader = new Loader(this, filename);
 	this->loader->start();
 
+	// Clear grid.
+	for (int i = 0; i < this->grid->count(); i++){
+		QWidget * frame = this->grid->itemAt(i)->widget();
+		QMPwidget * vid = (QMPwidget *)frame->children()[0];
+		this->grid->removeWidget(frame);
+		vid->writeCommand(QString("quit"));
+		delete frame;
+	}
+
 	Sleep(250);
-	
-	//@todo: Delete existing video widgets.
 
 	// Add new videos from ./tmp
 	WIN32_FIND_DATA fd;
@@ -253,7 +259,13 @@ void video::load_file(){
 }
 
 // Play / Pause
-void video::play(){}
+void video::play(){
+	for (int i = 0; i < this->grid->count(); i++){
+		QWidget * frame = this->grid->itemAt(i)->widget();
+		QMPwidget * vid = (QMPwidget *) frame->children()[0];
+		vid->writeCommand("pause");
+	}
+}
 
 // Initialize and run.
 int main(int argc, char *argv[])

@@ -44,11 +44,13 @@ public:
 public slots:
 	void play();
 	void tick();
+	void video::set_volume(int to);
 	void menu_select(QAction*);
 
 private:
 	Ui::MainWindow ui;
 	void add_video(QString path);
+	QSlider * volume;
 	QProgressBar * load_meter;
 	QProcess * player;
 	QGridLayout * grid;

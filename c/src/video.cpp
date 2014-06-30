@@ -158,6 +158,9 @@ video::video(QWidget *parent)
 
 	this->grid = this->findChild<QGridLayout*>(QString("grid"));
 
+	this->volume = this->findChild<QSlider*>(QString("volume"));
+	connect(this->volume, &QSlider::sliderMoved, this, &video::set_volume);
+
 	const QAbstractButton * play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
 	connect(play_btn, &QAbstractButton::clicked, this, &video::play);
 
@@ -168,6 +171,8 @@ video::video(QWidget *parent)
 	connect(ticker, &Ticker::tick, this, &video::tick);
 	ticker->start();
 }
+
+void video::set_volume(int to){}
 
 // Background updates (once per second).
 void video::tick(){
@@ -208,6 +213,7 @@ void video::add_video(QString path){
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
 	vid->start(QStringList("-wid") << QString::number((int)(container->winId())));
 	vid->writeCommand(QString("pausing_keep_force loadfile ") + path);
+	vid->writeCommand(QString("pausing_keep_force volume 0 1"));
 
 	// Find place in grid and add widget to window.
 	int x = 0, y = this->grid->rowCount() - 1;
@@ -255,7 +261,9 @@ void video::load_file(QString filename){
 // Use a QFileDialog to select and load a file.
 void video::load_file(){
 	QString filename = QFileDialog::getOpenFileName(this, "Load Chapter 10 File", ".", "Chapter 10 Files (*.c10 *.ch10);;All Files (*.*)");
-	this->load_file(filename);
+	if (filename != ""){
+		this->load_file(filename);
+	}
 }
 
 // Play / Pause

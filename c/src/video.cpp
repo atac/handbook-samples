@@ -168,12 +168,40 @@ video::video(QWidget *parent)
 	const QAbstractButton * play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
 	connect(play_btn, &QAbstractButton::clicked, this, &video::play);
 
+	this->slider = this->findChild<QSlider*>(QString("slider"));
+	connect(slider, &QSlider::sliderMoved, this, &video::seek);
+
 	this->load_meter = this->findChild<QProgressBar*>("load_meter");
 
 	// Background events
 	ticker = new Ticker;
 	connect(ticker, &Ticker::tick, this, &video::tick);
 	ticker->start();
+}
+
+void video::seek(int to){
+	int multiplier = this->length - this->start_offset;
+	if (multiplier < 1){
+		multiplier = 1;
+	}
+	to = (to / 100.0) * multiplier;
+
+	QWidget * frame = this->grid->itemAt(0)->widget();
+	QMPwidget * vid = (QMPwidget *)frame->children()[0];
+	int pos = (int) vid->tell();
+
+	int offset;
+	if (pos > to){
+		offset = -(pos - to);
+	}
+	else {
+		offset = to - pos;
+	}
+	for (int i = 0; i < this->grid->count(); i++){
+		QWidget * frame = this->grid->itemAt(i)->widget();
+		QMPwidget * vid = (QMPwidget *)frame->children()[0];
+		vid->seek(offset, QMPwidget::RelativeSeek);
+	}
 }
 
 // Switch source audio channel.
@@ -267,9 +295,16 @@ void video::add_video(QString path){
 	this->grid->addWidget(container, y, x);
 }
 
+void video::finished_loading(){
+	QMPwidget * vid = new QMPwidget;
+	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
+	vid->start();
+}
+
 // Start C10 video export and initialize screens for each video channel.
 void video::load_file(QString filename){
 	this->loader = new Loader(this, filename);
+	connect(this->loader, &Loader::done, this, &video::finished_loading);
 	this->loader->start();
 
 	// Clear and audio selection.
@@ -282,8 +317,6 @@ void video::load_file(QString filename){
 	}
 	this->audio->clear();
 
-	Sleep(250);
-
 	// Add new videos from ./tmp
 	WIN32_FIND_DATA fd;
 	HANDLE h = FindFirstFile((LPCWSTR) L"tmp\\*.mpg", &fd);
@@ -292,6 +325,12 @@ void video::load_file(QString filename){
 		this->add_video(QString("tmp/") + name);
 		this->audio->addItem(name);
 	} while (FindNextFile(h, &fd) != 0);
+
+	Sleep(250);
+
+	QWidget * frame = this->grid->itemAt(0)->widget();
+	QMPwidget * vid = (QMPwidget *)frame->children()[0];
+	this->start_offset = vid->tell();
 }
 
 // Use a QFileDialog to select and load a file.

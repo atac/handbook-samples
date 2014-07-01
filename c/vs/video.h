@@ -44,14 +44,19 @@ class video : public QMainWindow
 	public slots:
 		void play();
 		void tick();
+		void seek(int to);
 		void set_volume(int to);
 		void audio_source(int index);
 		void menu_select(QAction*);
+		void video::finished_loading();
 
 	private:
 		Ui::MainWindow ui;
+		int length = 0;
+		int start_offset = 0;
 		int audio_from = 0;
 		void add_video(QString path);
+		QSlider * slider;
 		QSlider * volume;
 		QProgressBar * load_meter;
 		QComboBox * audio;

@@ -36,27 +36,29 @@ class video : public QMainWindow
 {
 	Q_OBJECT
 
-public:
-	video(QWidget *parent = 0);
-	void load_file(QString filename);
-	void load_file();
+	public:
+		video(QWidget *parent = 0);
+		void load_file(QString filename);
+		void load_file();
 
-public slots:
-	void play();
-	void tick();
-	void video::set_volume(int to);
-	void menu_select(QAction*);
+	public slots:
+		void play();
+		void tick();
+		void set_volume(int to);
+		void audio_source(int index);
+		void menu_select(QAction*);
 
-private:
-	Ui::MainWindow ui;
-	void add_video(QString path);
-	QSlider * volume;
-	QProgressBar * load_meter;
-	QProcess * player;
-	QGridLayout * grid;
-	QString filename;
-	Loader * loader;
-	Ticker * ticker;
+	private:
+		Ui::MainWindow ui;
+		int audio_from = 0;
+		void add_video(QString path);
+		QSlider * volume;
+		QProgressBar * load_meter;
+		QComboBox * audio;
+		QGridLayout * grid;
+		QString filename;
+		Loader * loader;
+		Ticker * ticker;
 };
 
 #endif // VIDEO_H

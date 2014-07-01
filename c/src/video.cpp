@@ -149,7 +149,7 @@ video::video(QWidget *parent)
 	: QMainWindow(parent)
 {
 
-	// Set up UI
+	// Set up UI and connect events.
 	
 	ui.setupUi(this);
 
@@ -159,12 +159,16 @@ video::video(QWidget *parent)
 	this->grid = this->findChild<QGridLayout*>(QString("grid"));
 
 	this->volume = this->findChild<QSlider*>(QString("volume"));
+	this->volume->setValue(40);
 	connect(this->volume, &QSlider::sliderMoved, this, &video::set_volume);
+
+	this->audio = this->findChild<QComboBox*>(QString("audio"));
+	connect(this->audio, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &video::audio_source);
 
 	const QAbstractButton * play_btn = this->findChild<QAbstractButton*>(QString("play_btn"));
 	connect(play_btn, &QAbstractButton::clicked, this, &video::play);
 
-	QProgressBar * load_meter = this->findChild<QProgressBar*>("load_meter");
+	this->load_meter = this->findChild<QProgressBar*>("load_meter");
 
 	// Background events
 	ticker = new Ticker;
@@ -172,7 +176,38 @@ video::video(QWidget *parent)
 	ticker->start();
 }
 
-void video::set_volume(int to){}
+// Switch source audio channel.
+void video::audio_source(int index){
+
+	// Only works if we have video (duh!)
+	if (this->grid->count() < 1){
+		return;
+	}
+
+	// Mute current source if applicable.
+	if (this->audio_from > -1){
+		QWidget * frame = this->grid->itemAt(this->audio_from)->widget();
+		QMPwidget * vid = (QMPwidget *)frame->children()[0];
+		vid->writeCommand(QString("pausing_keep_force volume 0 1"));
+	}
+
+	// Enable new source.
+	QWidget * frame = this->grid->itemAt(index)->widget();
+	QMPwidget * vid = (QMPwidget *)frame->children()[0];
+	vid->writeCommand(QString("pausing_keep_force volume ") + QString::number(this->volume->value()) + " 1");
+	this->audio_from = index;
+
+}
+
+// Adjust volume on the selected channel.
+void video::set_volume(int to){
+	if (this->grid->count() < 1){
+		return;
+	}
+	QWidget * frame = this->grid->itemAt(this->audio_from)->widget();
+	QMPwidget * vid = (QMPwidget *)frame->children()[0];
+	vid->writeCommand(QString("pausing_keep_force volume ") + QString::number(to) + " 1");
+}
 
 // Background updates (once per second).
 void video::tick(){
@@ -237,7 +272,7 @@ void video::load_file(QString filename){
 	this->loader = new Loader(this, filename);
 	this->loader->start();
 
-	// Clear grid.
+	// Clear and audio selection.
 	for (int i = 0; i < this->grid->count(); i++){
 		QWidget * frame = this->grid->itemAt(i)->widget();
 		QMPwidget * vid = (QMPwidget *)frame->children()[0];
@@ -245,6 +280,7 @@ void video::load_file(QString filename){
 		vid->writeCommand(QString("quit"));
 		delete frame;
 	}
+	this->audio->clear();
 
 	Sleep(250);
 
@@ -254,7 +290,7 @@ void video::load_file(QString filename){
 	do {
 		QString name = QString::fromWCharArray(fd.cFileName);
 		this->add_video(QString("tmp/") + name);
-		//@todo: add to audio options
+		this->audio->addItem(name);
 	} while (FindNextFile(h, &fd) != 0);
 }
 

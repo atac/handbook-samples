@@ -29,7 +29,7 @@ class Loader : public QThread {
 		void quit();
 
 	signals:
-		void done(const QString &result);
+		void done();
 };
 
 class video : public QMainWindow
@@ -49,12 +49,15 @@ class video : public QMainWindow
 		void audio_source(int index);
 		void menu_select(QAction*);
 		void video::finished_loading();
+		void video::error(const QString &line);
+		void video::info(const QString &line);
 
 	private:
 		Ui::MainWindow ui;
 		int length = 0;
 		int start_offset = 0;
 		int audio_from = 0;
+		QString last_video;
 		void add_video(QString path);
 		QSlider * slider;
 		QSlider * volume;

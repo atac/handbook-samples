@@ -88,6 +88,8 @@ void Loader::run(){
 		// Read next header or exit.
 		status = Irig106::enI106Ch10ReadNextHeader(input_handle, &header);
 		if (status != Irig106::I106_OK){
+			this->finished = 1;
+			emit this->done();
 			qDebug() << "Finished";
 			return;
 		}
@@ -297,8 +299,18 @@ void video::add_video(QString path){
 
 void video::finished_loading(){
 	QMPwidget * vid = new QMPwidget;
+	QMPwidget::connect(vid, &QMPwidget::readStandardOutput, this, &video::info);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
-	vid->start();
+	vid->start(QStringList(QString("-vo null -ao null")));
+	vid->writeCommand(QString("pausing_keep_force loadfile ./tmp/" + this->last_video));
+	vid->writeCommand(QString("pausing_keep_force get_property length"));
+	qDebug() << "Finished loading.";
+}
+
+void video::info(const QString &line){
+	if (line.contains(QString("ANS_length="), Qt::CaseSensitive)){
+		this->length = line.split(QString("="))[1].toFloat();
+	}
 }
 
 // Start C10 video export and initialize screens for each video channel.
@@ -320,8 +332,9 @@ void video::load_file(QString filename){
 	// Add new videos from ./tmp
 	WIN32_FIND_DATA fd;
 	HANDLE h = FindFirstFile((LPCWSTR) L"tmp\\*.mpg", &fd);
+	QString name;
 	do {
-		QString name = QString::fromWCharArray(fd.cFileName);
+		name = QString::fromWCharArray(fd.cFileName);
 		this->add_video(QString("tmp/") + name);
 		this->audio->addItem(name);
 	} while (FindNextFile(h, &fd) != 0);
@@ -330,6 +343,7 @@ void video::load_file(QString filename){
 
 	QWidget * frame = this->grid->itemAt(0)->widget();
 	QMPwidget * vid = (QMPwidget *)frame->children()[0];
+	this->last_video = name;
 	this->start_offset = vid->tell();
 }
 

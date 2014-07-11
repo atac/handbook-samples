@@ -182,7 +182,10 @@ video::video(QWidget *parent)
 }
 
 void video::seek(int to){
-	int multiplier = this->length - this->start_offset;
+	//@todo: seek still isn't completely accurate
+	qDebug() << QString::number(to);
+
+	int multiplier = (this->length - this->start_offset);
 	if (multiplier < 1){
 		multiplier = 1;
 	}
@@ -191,6 +194,10 @@ void video::seek(int to){
 	QWidget * frame = this->grid->itemAt(0)->widget();
 	QMPwidget * vid = (QMPwidget *)frame->children()[0];
 	int pos = (int) vid->tell();
+	if (pos < 1){
+		pos = 0;
+	}
+	pos -= this->start_offset;
 
 	int offset;
 	if (pos > to){
@@ -199,10 +206,11 @@ void video::seek(int to){
 	else {
 		offset = to - pos;
 	}
+	qDebug() << QString("Seek to ") + QString::number(offset) + " / " + QString::number(this->length) + " offset: " + QString::number(this->start_offset);
 	for (int i = 0; i < this->grid->count(); i++){
 		QWidget * frame = this->grid->itemAt(i)->widget();
 		QMPwidget * vid = (QMPwidget *)frame->children()[0];
-		vid->seek(offset, QMPwidget::RelativeSeek);
+		vid->seek(offset);
 	}
 }
 
@@ -300,16 +308,29 @@ void video::add_video(QString path){
 void video::finished_loading(){
 	QMPwidget * vid = new QMPwidget;
 	QMPwidget::connect(vid, &QMPwidget::readStandardOutput, this, &video::info);
+	QMPwidget::connect(vid, &QMPwidget::readStandardError, this, &video::error);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
-	vid->start(QStringList(QString("-vo null -ao null")));
+
+	vid->start();
+	//@todo: need to do this without mplayer complaining
+	//vid->start(QStringList(QString("-vo=null") + " -ao=null"));
 	vid->writeCommand(QString("pausing_keep_force loadfile ./tmp/" + this->last_video));
 	vid->writeCommand(QString("pausing_keep_force get_property length"));
+	vid->writeCommand(QString("pausing_keep_force get_property time_pos"));
 	qDebug() << "Finished loading.";
 }
 
+void video::error(const QString &line){
+	qDebug() << "Error: " << line;
+}
+	
 void video::info(const QString &line){
+	qDebug() << "Info: " << line;
 	if (line.contains(QString("ANS_length="), Qt::CaseSensitive)){
 		this->length = line.split(QString("="))[1].toFloat();
+	}
+	if (line.contains(QString("ANS_time_pos="), Qt::CaseSensitive)){
+		this->start_offset = line.split(QString("="))[1].toFloat();
 	}
 }
 

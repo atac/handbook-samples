@@ -181,24 +181,22 @@ video::video(QWidget *parent)
 	ticker->start();
 }
 
+// Jump to a specific time in all videos.
 void video::seek(int to){
-	//@todo: seek still isn't completely accurate
-	qDebug() << QString::number(to);
 
-	int multiplier = (this->length - this->start_offset);
-	if (multiplier < 1){
-		multiplier = 1;
+	// Convert to (which starts life as a percentage) to an absolute timestamp (seconds).
+	int length = this->length - this->start_offset;
+	if (length < 1){
+		length = 1;
 	}
-	to = (to / 100.0) * multiplier;
+	to = (to / 100.0) * length;
 
+	// Find the current playback position (with offset).
 	QWidget * frame = this->grid->itemAt(0)->widget();
 	QMPwidget * vid = (QMPwidget *)frame->children()[0];
-	int pos = (int) vid->tell();
-	if (pos < 1){
-		pos = 0;
-	}
-	pos -= this->start_offset;
+	int pos = vid->tell() - this->start_offset;
 
+	// Compute an offset in seconds.
 	int offset;
 	if (pos > to){
 		offset = -(pos - to);
@@ -206,11 +204,11 @@ void video::seek(int to){
 	else {
 		offset = to - pos;
 	}
-	qDebug() << QString("Seek to ") + QString::number(offset) + " / " + QString::number(this->length) + " offset: " + QString::number(this->start_offset);
+
 	for (int i = 0; i < this->grid->count(); i++){
 		QWidget * frame = this->grid->itemAt(i)->widget();
 		QMPwidget * vid = (QMPwidget *)frame->children()[0];
-		vid->seek(offset);
+		vid->seek(offset, QMPwidget::RelativeSeek);
 	}
 }
 
@@ -266,6 +264,24 @@ void video::tick(){
 		load_label->setText("Done");
 	}
 	load_meter->setValue(percent);
+
+	// Seek bar.
+	if (this->loader != NULL && this->loader->isFinished()){
+		QWidget * frame = this->grid->itemAt(this->audio_from)->widget();
+		QMPwidget * vid = (QMPwidget *)frame->children()[0];
+		float pos = vid->tell();
+		if (pos){
+			pos -= this->start_offset;
+			float length = this->length - this->start_offset;
+			if (length < 1){
+				length = 1;
+			}
+			int percent = pos / length * 100;
+
+			QSlider * slider = this->findChild<QSlider *>("slider");
+			slider->setValue(percent);
+		}
+	}
 }
 
 // Navigation menu events
@@ -311,12 +327,13 @@ void video::finished_loading(){
 	QMPwidget::connect(vid, &QMPwidget::readStandardError, this, &video::error);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
 
+	//@todo: need to start with no audio or video without mplayer complaining
+	//vid->start(QStringList("-vo") << QString(" null"));
 	vid->start();
-	//@todo: need to do this without mplayer complaining
-	//vid->start(QStringList(QString("-vo=null") + " -ao=null"));
 	vid->writeCommand(QString("pausing_keep_force loadfile ./tmp/" + this->last_video));
 	vid->writeCommand(QString("pausing_keep_force get_property length"));
 	vid->writeCommand(QString("pausing_keep_force get_property time_pos"));
+	vid->close();
 	qDebug() << "Finished loading.";
 }
 

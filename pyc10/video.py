@@ -87,7 +87,7 @@ class Main(QtGui.QMainWindow, Ui_MainWindow):
         self.ticker.tick.connect(self.tick)
         self.audio.currentIndexChanged.connect(self.audio_source)
         self.slider.sliderMoved.connect(self.seek)
-        self.volume.sliderMoved.connect(self.adjust_volume)
+        self.volume.sliderMoved.connect(self.set_volume)
         self.menubar.triggered.connect(self.menu_action)
         self.destroyed.connect(self.closeEvent)
 
@@ -147,7 +147,7 @@ class Main(QtGui.QMainWindow, Ui_MainWindow):
         time.sleep(0.25)
         self.start_offset = (self.videos[0].player.time_pos or 0)
 
-    def adjust_volume(self, to):
+    def set_volume(self, to):
         self.videos[self.audio_from].player.volume = float(to or 0)
 
     def audio_source(self, index):

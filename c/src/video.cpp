@@ -327,13 +327,10 @@ void video::finished_loading(){
 	QMPwidget::connect(vid, &QMPwidget::readStandardError, this, &video::error);
 	vid->setMPlayerPath(QString("..\\..\\mplayer.exe"));
 
-	//@todo: need to start with no audio or video without mplayer complaining
-	//vid->start(QStringList("-vo") << QString(" null"));
-	vid->start();
+	vid->start(QStringList() << "-vo" << "null" << "-ao" << "null");
 	vid->writeCommand(QString("pausing_keep_force loadfile ./tmp/" + this->last_video));
 	vid->writeCommand(QString("pausing_keep_force get_property length"));
 	vid->writeCommand(QString("pausing_keep_force get_property time_pos"));
-	vid->close();
 	qDebug() << "Finished loading.";
 }
 

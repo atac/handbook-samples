@@ -215,6 +215,7 @@ class Main(QtGui.QMainWindow, Ui_MainWindow):
             self.videos[0].player.path))
         tmp.loadfile(path)
         tmp.seek(99, 1)
+        time.sleep(0.5)
         self.length = tmp.time_pos
         tmp.quit()
         self.slider.setEnabled(True)

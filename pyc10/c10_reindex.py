@@ -98,7 +98,7 @@ def gen_root(nodes, last, seq, last_packet):
     for node in nodes:
         ipts = struct.pack('HH', last_packet.rtc_low & 0xffff,
                            last_packet.rtc_high & 0xffff)
-        offset = struct.pack('Q', node)
+        offset = struct.pack('Q', pos - node)
         packet += ipts + offset
 
     if last is None:
@@ -132,6 +132,7 @@ if __name__ == '__main__':
         node_seq = 0
         last_root = None
         last_packet = None
+
         for packet in walk_packets(C10(args['<src>']), args):
             last_packet = packet
             if packet.data_type == 0x03:

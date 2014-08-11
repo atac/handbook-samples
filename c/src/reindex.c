@@ -64,13 +64,7 @@ int main(int argc, char ** argv){
 		}
 
 		// Ensure that we're interested in this particular packet.
-		if (args.exclude && match(header.uChID, args.exclude)){
-			continue;
-		}
-		else if (args.channel && !match(header.uChID, args.channel)){
-			continue;
-		}
-		else if (args.type && !match(header.ubyDataType, args.type)){
+		if (header.ubyDataType == 0x3){
 			continue;
 		}
 
@@ -85,6 +79,10 @@ int main(int argc, char ** argv){
 		// Write packet to file.
 		fwrite(&header, sizeof(header), 1, output);
 		fwrite(&buffer, header.ulPacketLen, 1, output);
+	}
+
+	if (args.strip){
+		printf("Stripped existing indices.");
 	}
 
 }

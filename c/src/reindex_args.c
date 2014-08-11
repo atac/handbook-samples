@@ -14,13 +14,19 @@ typedef struct {
     /* arguments */
     char *dst;
     char *src;
+    /* options without arguments */
+    int force;
+    int strip;
     /* special */
     const char *usage_pattern;
     const char *help_message;
 } DocoptArgs;
 
 const char help_message[] =
-"usage: reindex <src> <dst> [options]\n"
+"reindex - strip or rebuild index packets for a file\n"
+"\n"
+"Usage:\n"
+"    reindex <src> <dst> [-s] [-f] [options]\n"
 "\n"
 "Options:\n"
 "    -s, --strip  Strip existing index packets and exit.\n"
@@ -28,7 +34,8 @@ const char help_message[] =
 "";
 
 const char usage_pattern[] =
-"usage: reindex <src> <dst> [options]";
+"Usage:\n"
+"    reindex <src> <dst> [-s] [-f] [options]";
 
 typedef struct {
     const char *name;
@@ -243,6 +250,10 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
                    !strcmp(option->olong, "--version")) {
             printf("%s\n", version);
             return 1;
+        } else if (!strcmp(option->olong, "--force")) {
+            args->force = option->value;
+        } else if (!strcmp(option->olong, "--strip")) {
+            args->strip = option->value;
         }
     }
     /* commands */
@@ -268,7 +279,7 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
-        NULL, NULL,
+        NULL, NULL, 0, 0,
         usage_pattern, help_message
     };
     Tokens ts;
@@ -279,8 +290,10 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"<src>", NULL, NULL}
     };
     Option options[] = {
+        {"-f", "--force", 0, 0, NULL},
+        {"-s", "--strip", 0, 0, NULL}
     };
-    Elements elements = {0, 2, 0, commands, arguments, options};
+    Elements elements = {0, 2, 2, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))

@@ -1,4 +1,7 @@
-usage: reindex <src> <dst> [options]
+reindex - strip or rebuild index packets for a file
+
+Usage:
+    reindex <src> <dst> [-s] [-f] [options]
 
 Options:
     -s, --strip  Strip existing index packets and exit.

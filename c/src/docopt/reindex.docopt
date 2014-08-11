@@ -1,0 +1,5 @@
+usage: reindex <src> <dst> [options]
+
+Options:
+    -s, --strip  Strip existing index packets and exit.
+    -f, --force  Overwrite existing files.

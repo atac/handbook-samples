@@ -88,7 +88,11 @@ class DataType(object):
              ('MIL1553_FMT_2', '16PP194', 0x1A),
              ('IEEE1394_FMT_0', 'IEEE 1394 Format 0', 0x58),
              ('IEEE1394_FMT_1', 'IEEE 1394 Format 1', 0x59),
-             ('MESSAGE', 'Message', 0x30)]
+             ('MESSAGE', 'Message', 0x30),
+             ('TSPI_CTS_FMT_0', 'GPS NMEA-RTCM', 0x70),
+             ('TSPI_CTS_FMT_1', 'EAG ACMI', 0x71),
+             ('TSPI_CTS_FMT_2', 'ACTTS', 0x72),
+             ('CAN_BUS', 'CAN Bus', 0x78)]
 
     @classmethod
     def name(cls, num):

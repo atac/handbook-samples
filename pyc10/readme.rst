@@ -1,4 +1,3 @@
-
 PyChapter10 Samples
 ===================
 
@@ -10,6 +9,7 @@ Dependencies
 * Python_ 2.7
 * PyChapter10_
 * docopt_
+* PySide_ (for video sample)
 
 Building and Running
 --------------------
@@ -22,3 +22,4 @@ To build .exe files you will also need the cx_Freeze_ library. Once installed yo
 .. _Python: http://python.org
 .. _docopt: http://docopt.org
 .. _cx_Freeze: http://cx-freeze.sourceforge.net/
+.. _PySide: http://qt-project.org/wiki/PySide

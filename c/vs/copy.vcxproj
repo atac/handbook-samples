@@ -81,7 +81,6 @@
     <ClCompile Include="..\irig106lib\src\irig106cl.cpp" />
     <ClCompile Include="..\src\common.c" />
     <ClCompile Include="..\src\copy.c" />
-    <ClCompile Include="..\src\reindex_args.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\irig106lib\src\config.h" />

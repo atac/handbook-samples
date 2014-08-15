@@ -31,7 +31,7 @@ int main(int argc, char ** argv){
 	}
 
 	// Open output file.
-	output = fopen(argv[2], "w");
+	output = fopen(argv[2], "wb");
 	if (output == NULL){
 		return error("Couldn't open destination file.");
 	}
@@ -50,8 +50,8 @@ int main(int argc, char ** argv){
 	}
 
 	// Write TMATS out.
-	fwrite(&header, sizeof(header), 1, output);
-	fwrite(&buffer, header.ulPacketLen, 1, output);
+	fwrite(&header, 24, 1, output);
+	fwrite(&buffer, header.ulDataLen, 1, output);
 
 	// Parse loop.
 	while (1){

@@ -17,8 +17,3 @@ basic demos. Each has its own readme file.
 
 .. _PyChapter10: https://bitbucket.org/mcferrill/pychapter10
 .. _Irig 106: http://sourceforge.net/projects/irig106/
-
-To Do
-=====
-
-* Get pyi106/setup.py working (build currently fails)

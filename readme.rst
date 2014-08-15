@@ -1,4 +1,3 @@
-
 Chapter 10 Programmer's Handbook Code Samples
 =============================================
 
@@ -17,3 +16,5 @@ basic demos. Each has its own readme file.
 
 .. _PyChapter10: https://bitbucket.org/mcferrill/pychapter10
 .. _Irig 106: http://sourceforge.net/projects/irig106/
+
+Each section has its own readme.rst explaining the build and run process.

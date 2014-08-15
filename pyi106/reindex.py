@@ -8,15 +8,12 @@ Options:
 
 from array import array
 from contextlib import closing
-import StringIO
 import os
 import struct
 
 from docopt import docopt
 
 from Py106.Packet import IO, FileMode, Status
-
-from chapter10 import Packet
 
 
 def gen_node(packets, seq=0):

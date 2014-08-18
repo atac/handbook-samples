@@ -1,0 +1,68 @@
+
+html, body, div {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+}
+
+html, body {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+h3 {
+    display: inline;
+}
+
+nav {
+    height: 30px;
+    background: #333;
+}
+
+nav a {
+    text-transform: capitalize;
+    display: block;
+    float: left;
+    margin-right: 5px;
+    padding: 5px;
+    font-size: 16px;
+    color: #eee;
+    text-decoration: none;
+}
+
+nav a:hover {
+    background: #999;
+}
+
+nav a.active {
+    background: #666;
+}
+
+.tab {
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+}
+
+#graph {
+    position: absolute;
+    z-index: 1000;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 430px;
+}
+
+#packet-table {
+    width: 100%;
+}
+
+#packet-table thead {
+    background: #666;
+    color: #eee;
+    text-align: left;
+}

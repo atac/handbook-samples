@@ -22,7 +22,7 @@ $(document).ready(function(){
         },
         yaxis: {
             min: 0,
-            max: 65500
+            max: 500
         },
         xaxis: {
             show: false

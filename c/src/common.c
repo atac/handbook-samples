@@ -18,15 +18,16 @@ int error(char msg[]){
 int match(int key, const char value[]){
 	long *val;
 	char **num;
-	char s1[50];
-	strcpy_s(s1, sizeof(value), value);
-	char *t1 = strtok_s(s1, ",", NULL);
+	char **ctx = NULL;
+	const char s1[100];
+	strcpy_s(s1, 100, value);
+	char *t1 = strtok_s(s1, ",", &ctx);
 	while (t1 != NULL){
 		val = strtol(t1, &num, 0);
 		if (val == key){
 			return 1;
 		}
-		t1 = strtok_s(NULL, ",", NULL);
+		t1 = strtok_s(NULL, ",", &ctx);
 	}
 	return 0;
 }

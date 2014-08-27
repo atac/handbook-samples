@@ -16,12 +16,15 @@ def walk_packets(c10, args={}):
     channels = [c.strip() for c in args['--channel'].split(',') if c.strip()]
     exclude = [e.strip() for e in args['--exclude'].split(',') if e.strip()]
 
+    i = 0
     for packet in c10:
-        if channels and str(packet.channel_id) not in channels:
-            continue
-        elif str(packet.channel_id) in exclude:
-            continue
-        elif types and packet.data_type not in types:
-            continue
+        if i > 0:
+            if channels and str(packet.channel_id) not in channels:
+                continue
+            elif str(packet.channel_id) in exclude:
+                continue
+            elif types and packet.data_type not in types:
+                continue
+        i += 1
 
         yield packet

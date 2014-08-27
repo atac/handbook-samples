@@ -9,32 +9,29 @@
 #include "common.h"
 
 int main(int argc, char ** argv){
-	DocoptArgs args = docopt(argc, argv, 1, "1");
-	int input_handle;
-	SuI106Ch10Header header;
-	FILE *output;
-	int packets = 0;
-	void * buffer = malloc(24);
 
-	// Validate arguments and offer help.
+    // Get commandline args.
+	DocoptArgs args = docopt(argc, argv, 1, "1");
 	if (argc < 3){
 		printf(args.usage_pattern);
 		return quit(1);
 	}
 
-	// Open file for reading.
+	// Open input and output files.
+	int input_handle;
 	EnI106Status status = enI106Ch10Open(&input_handle, argv[1], I106_READ);
 	if (status != I106_OK){
 		char msg[200] = "Error opening source file: ";
 		strcat(msg, argv[1]);
 		return error(msg);
 	}
-
-	// Open output file.
-	output = fopen(argv[2], "wb");
+	FILE * output = fopen(argv[2], "wb");
 	if (output == NULL){
 		return error("Couldn't open destination file.");
 	}
+
+	SuI106Ch10Header header;
+	void * buffer = malloc(24);
 
 	// Copy TMATS
 	status = enI106Ch10ReadNextHeader(input_handle, &header);
@@ -48,12 +45,10 @@ int main(int argc, char ** argv){
 		printf("Error reading TMATS.");
 		return quit(0);
 	}
-
-	// Write TMATS out.
 	fwrite(&header, 24, 1, output);
-	fwrite(&buffer, header.ulDataLen, 1, output);
+	fwrite(&buffer, header.ulPacketLen - 24, 1, output);
 
-	// Parse loop.
+	// Iterate over packets based on args.
 	while (1){
 
 		// Read next header or exit.
@@ -74,15 +69,13 @@ int main(int argc, char ** argv){
 			continue;
 		}
 
-		// Read packet data.
+		// Copy packet to new file.
 		buffer = realloc(buffer, header.ulPacketLen);
 		status = enI106Ch10ReadDataFile(input_handle, header.ulPacketLen, buffer);
 		if (status != I106_OK){
 			printf("Error reading packet.");
 			continue;
 		}
-
-		// Write packet to file.
 		fwrite(&header, sizeof(header), 1, output);
 		fwrite(&buffer, header.ulPacketLen, 1, output);
 	}

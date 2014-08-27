@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__doc__ = """usage: c10_copy.py <src> <dst> [options]
+__doc__ = """usage: copy.py <src> <dst> [options]
 
 Options:
     -c CHANNEL..., --channel CHANNEL...  Specify channels to include (csv).
@@ -18,6 +18,8 @@ from walk import walk_packets
 
 
 if __name__ == '__main__':
+
+    # Get commandline args.
     args = docopt(__doc__)
 
     # Don't overwrite unless explicitly required.
@@ -25,8 +27,14 @@ if __name__ == '__main__':
         print('dst file already exists. Use -f to overwrite.')
         raise SystemExit
 
+    # Open input and output files.
     with open(args['<dst>'], 'wb') as out:
-        for packet in walk_packets(C10(args['<src>']), args):
+        src = C10(args['<src>'])
+
+        # Iterate over packets based on args.
+        for packet in walk_packets(src, args):
+
+            # Copy packet to new file.
             raw = bytes(packet)
             if len(raw) == packet.packet_length:
                 out.write(raw)

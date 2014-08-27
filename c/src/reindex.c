@@ -11,6 +11,8 @@
 void gen_node(int64_t offset, SuI106Ch10Header * packets, int packets_c, int64_t offsets[], FILE * output, int seq){
 	printf("Index node for %d packets\n", packets_c);
 
+	int *write_ptr;
+
 	// Packet header
 	SuI106Ch10Header index_header;
 	index_header.uSync = 0xeb25;
@@ -29,30 +31,38 @@ void gen_node(int64_t offset, SuI106Ch10Header * packets, int packets_c, int64_t
 	}
 	sums &= 0xffff;
 	index_header.uChecksum = (uint16_t)sums;
-	fwrite(&index_header, 24, 1, output);
+	write_ptr = &index_header;
+	fwrite(write_ptr, 24, 1, output);
 
 	// CSDW
 	int32_t csdw = 0;
 	csdw &= (1 << 31);
 	csdw &= (1 << 30);
-	fwrite(&csdw, 4, 1, output);
+	write_ptr = &csdw;
+	fwrite(write_ptr, 4, 1, output);
 
 	// File size
-	fwrite(&offset, 8, 1, output);
+	write_ptr = &offset;
+	fwrite(write_ptr, 8, 1, output);
 
 	// Packets
 	for (int i = 0; i <= packets_c; i++){
 		SuI106Ch10Header packet = packets[i];
 		
 		// IPTS
-		fwrite(index_header.aubyRefTime, 1, 6, output);
+		write_ptr = &index_header.aubyRefTime;
+		fwrite(write_ptr, 1, 6, output);
 
 		// Index entry
 		int8_t filler = 0;
-		fwrite(&filler, 1, 1, output);
-		fwrite(&packet.ubyDataType, 1, 1, output);
-		fwrite(&packet.uChID, 2, 1, output);
-		fwrite(&offsets[i], 8, 1, output);
+		write_ptr = &filler;
+		fwrite(write_ptr, 1, 1, output);
+		write_ptr = &packet.ubyDataType;
+		fwrite(write_ptr, 1, 1, output);
+		write_ptr = &packet.uChID;
+		fwrite(write_ptr, 2, 1, output);
+		write_ptr = &offsets[i];
+		fwrite(write_ptr, 8, 1, output);
 	}
 }
 
@@ -98,6 +108,8 @@ int main(int argc, char ** argv){
 	int last_packet_at;
 	int node_seq = 0;
 	int64_t offset;
+	int *hdrptr;
+	int hdrlen;
 
 	// Parse loop.
 	while (1){
@@ -125,9 +137,12 @@ int main(int argc, char ** argv){
 		}
 
 		if (header.ubyDataType != 0x03){
+			hdrptr = &header;
+			hdrlen = header.ulPacketLen - header.ulDataLen;
+
 			// Write packet to file.
-			fwrite(&header, sizeof(header), 1, output);
-			fwrite(&buffer, header.ulDataLen, 1, output);
+			fwrite(hdrptr, sizeof(header), 1, output);
+			fwrite(buffer, header.ulDataLen, 1, output);
 
 			last_packet = header;
 			//enI106Ch10GetPos(input_handle, &last_packet_at);
@@ -142,7 +157,7 @@ int main(int argc, char ** argv){
 
 		if ((header.ubyDataType == 0x02 || header.ubyDataType == 0x11) || (packets_c > 20000)){
 			// Generate node packet.
-			gen_node(offset, &packets_arr, packets_c, offsets, output, node_seq);
+			//gen_node(offset, &packets_arr, packets_c, offsets, output, node_seq);
 			node_seq = increment(node_seq);
 			packets_c = 0;
 		}

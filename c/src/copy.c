@@ -46,7 +46,7 @@ int main(int argc, char ** argv){
 		return quit(0);
 	}
 	fwrite(&header, 24, 1, output);
-	fwrite(&buffer, header.ulPacketLen - 24, 1, output);
+	fwrite(buffer, header.ulPacketLen - 24, 1, output);
 
 	// Iterate over packets based on args.
 	while (1){
@@ -77,7 +77,7 @@ int main(int argc, char ** argv){
 			continue;
 		}
 		fwrite(&header, sizeof(header), 1, output);
-		fwrite(&buffer, header.ulPacketLen, 1, output);
+		fwrite(buffer, header.ulPacketLen, 1, output);
 	}
 
 }

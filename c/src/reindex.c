@@ -157,7 +157,7 @@ int main(int argc, char ** argv){
 
 		if ((header.ubyDataType == 0x02 || header.ubyDataType == 0x11) || (packets_c > 20000)){
 			// Generate node packet.
-			//gen_node(offset, &packets_arr, packets_c, offsets, output, node_seq);
+			gen_node(offset, &packets_arr, packets_c, offsets, output, node_seq);
 			node_seq = increment(node_seq);
 			packets_c = 0;
 		}

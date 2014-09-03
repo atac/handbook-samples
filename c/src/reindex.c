@@ -11,58 +11,48 @@
 void gen_node(int64_t offset, SuI106Ch10Header * packets, int packets_c, int64_t offsets[], FILE * output, int seq){
 	printf("Index node for %d packets\n", packets_c);
 
-	int *write_ptr;
-
 	// Packet header
 	SuI106Ch10Header index_header;
 	index_header.uSync = 0xeb25;
 	index_header.uChID = 0;
-	index_header.ulPacketLen = 36 + (20 * packets_c);
-	index_header.ulDataLen = 12 + (20 * packets_c);
+	index_header.ulPacketLen = 36 + (18 * packets_c);
+	index_header.ulDataLen = 12 + (18 * packets_c);
 	index_header.ubyHdrVer = 0x06;
 	index_header.ubySeqNum = seq;
 	index_header.ubyPacketFlags = 0;
 	index_header.ubyDataType = 0x03;
 	index_header.uChecksum = 0;
-	uint64_t sums = 0xeb25 + (12 + (20 * packets_c)) * 2;
+	uint64_t sums = 0xeb25 + ((12 + (18 * packets_c)) * 2);
 	sums += 24 + 6 + seq + 3;
 	for (int i = 0; i <= 6; i++){
 		sums += index_header.aubyRefTime[i];
 	}
 	sums &= 0xffff;
 	index_header.uChecksum = (uint16_t)sums;
-	write_ptr = &index_header;
-	fwrite(write_ptr, 24, 1, output);
+	fwrite(&index_header, 24, 1, output);
 
 	// CSDW
 	int32_t csdw = 0;
 	csdw &= (1 << 31);
 	csdw &= (1 << 30);
-	write_ptr = &csdw;
-	fwrite(write_ptr, 4, 1, output);
+	fwrite(&csdw, 4, 1, output);
 
 	// File size
-	write_ptr = &offset;
-	fwrite(write_ptr, 8, 1, output);
+	fwrite(&offset, 8, 1, output);
 
 	// Packets
 	for (int i = 0; i <= packets_c; i++){
 		SuI106Ch10Header packet = packets[i];
 		
 		// IPTS
-		write_ptr = &index_header.aubyRefTime;
-		fwrite(write_ptr, 1, 6, output);
+		fwrite(&index_header.aubyRefTime, 1, 6, output);
 
 		// Index entry
 		int8_t filler = 0;
-		write_ptr = &filler;
-		fwrite(write_ptr, 1, 1, output);
-		write_ptr = &packet.ubyDataType;
-		fwrite(write_ptr, 1, 1, output);
-		write_ptr = &packet.uChID;
-		fwrite(write_ptr, 2, 1, output);
-		write_ptr = &offsets[i];
-		fwrite(write_ptr, 8, 1, output);
+		fwrite(&filler, 1, 1, output);
+		fwrite(&packet.ubyDataType, 1, 1, output);
+		fwrite(&packet.uChID, 2, 1, output);
+		fwrite(&offsets[i], 8, 1, output);
 	}
 }
 

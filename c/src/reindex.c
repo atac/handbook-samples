@@ -68,7 +68,6 @@ int main(int argc, char ** argv){
 	DocoptArgs args = docopt(argc, argv, 1, "1");
 	int input_handle;
 	SuI106Ch10Header header;
-	FILE * output;
 	void * buffer = malloc(24);
 
 	// Validate arguments and offer help.
@@ -86,7 +85,7 @@ int main(int argc, char ** argv){
 	}
 
 	// Open output file.
-	output = fopen(argv[2], "wb");
+	FILE * output = fopen(argv[2], "wb");
 	if (output == NULL){
 		return error("Couldn't open destination file.");
 	}
@@ -128,10 +127,15 @@ int main(int argc, char ** argv){
 
 		if (header.ubyDataType != 0x03){
 			hdrptr = &header;
-			hdrlen = header.ulPacketLen - header.ulDataLen;
+			if (header.ubyPacketFlags & (0x1 << 7)){
+				hdrlen = 36;
+			}
+			else {
+				hdrlen = 24;
+			}
 
 			// Write packet to file.
-			fwrite(hdrptr, sizeof(header), 1, output);
+			fwrite(hdrptr, hdrlen, 1, output);
 			fwrite(buffer, header.ulDataLen, 1, output);
 
 			last_packet = header;

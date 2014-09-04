@@ -45,8 +45,12 @@ int main(int argc, char ** argv){
 		printf("Error reading TMATS.");
 		return quit(0);
 	}
-	fwrite(&header, 24, 1, output);
-	fwrite(buffer, header.ulPacketLen - 24, 1, output);
+	int header_len = 24;
+	if (header.ubyPacketFlags & (0x1 << 7)){
+		header_len = 36;
+	}
+	fwrite(&header, header_len, 1, output);
+	fwrite(buffer, header.ulPacketLen - header_len, 1, output);
 
 	// Iterate over packets based on args.
 	while (1){
@@ -76,7 +80,11 @@ int main(int argc, char ** argv){
 			printf("Error reading packet.");
 			continue;
 		}
-		fwrite(&header, sizeof(header), 1, output);
+		header_len = 24;
+		if (header.ubyPacketFlags & (0x1 << 7)){
+			header_len = 36;
+		}
+		fwrite(&header, header_len, 1, output);
 		fwrite(buffer, header.ulPacketLen, 1, output);
 	}
 

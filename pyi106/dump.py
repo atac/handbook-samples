@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     channels, exclude, types = walk_args(args)
 
+    # Open input file.
     with closing(IO()) as PktIO:
         RetStatus = PktIO.open(args['<file>'], FileMode.READ)
         if RetStatus != Status.OK:
@@ -38,6 +39,8 @@ if __name__ == '__main__':
             raise SystemExit
 
         out = {}
+
+        # Iterate over packets based on args.
         while RetStatus == Status.OK:
             RetStatus = PktIO.read_next_header()
 
@@ -50,20 +53,16 @@ if __name__ == '__main__':
 
             if PktIO.read_data() != Status.OK:
                 continue
-            header = buffer(PktIO.Header)[:]
-            if not bool(PktIO.Header.PacketFlags & (1 << 7)):
-                header = header[:-12]
 
-            # Get filename
+            # Get filename for this channel based on data type.
             filename = os.path.join(args['--output'], str(PktIO.Header.ChID))
-
             if 0x3F < PktIO.Header.DataType < 0x43:
                 filename += '.mpg'
 
             # Ensure a file is open (and will close) for a given channel.
             if filename not in out:
 
-                # Don't overwrite without explicit direction.
+                # Don't overwrite unless explicitly required.
                 if os.path.exists(filename) and not args['--force']:
                     print('%s already exists. Use -f to overwrite.' % filename)
                     break
@@ -72,6 +71,8 @@ if __name__ == '__main__':
                 atexit.register(out[filename].close)
 
             data = PktIO.Buffer.raw[4:PktIO.Header.PacketLen - 4]
+
+            # Handle special case for video data.
             if bool(0x3F < PktIO.Header.DataType < 0x43):
                 for i in range(len(data) / 188):
                     body = array('H', data[i * 188:(i + 1) * 188])

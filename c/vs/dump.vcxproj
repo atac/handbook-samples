@@ -80,7 +80,6 @@
     <ClCompile Include="..\irig106lib\src\irig106cl.cpp" />
     <ClCompile Include="..\src\common.c" />
     <ClCompile Include="..\src\dump.c" />
-    <ClCompile Include="..\src\reindex.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\irig106lib\src\config.h" />

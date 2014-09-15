@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__doc__ = """usage: c10_reindex.py <src> <dst> [options]
+__doc__ = """usage: reindex.py <src> <dst> [options]
 
 Options:
     -s, --strip  Strip existing index packets and exit.

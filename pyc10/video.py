@@ -145,7 +145,9 @@ class Main(QtGui.QMainWindow, Ui_MainWindow):
         self.show()
 
         time.sleep(0.25)
-        self.start_offset = (self.videos[0].player.time_pos or 0)
+        self.start_offset = 0
+        if self.videos:
+            self.start_offset = self.videos[0].player.time_pos or 0
 
     def set_volume(self, to):
         self.videos[self.audio_from].player.volume = float(to or 0)
@@ -275,10 +277,10 @@ class FileLoader(QtCore.QThread):
         self.finished = True
         self.parent, self.filename = parent, filename
         self.size, self.pos = os.stat(filename).st_size, 0
+        self.tmp = mkdtemp()
 
     def run(self):
         self.finished = False
-        self.tmp = mkdtemp()
         out = {}
         try:
             for packet in C10(self.filename):

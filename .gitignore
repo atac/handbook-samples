@@ -13,3 +13,4 @@ c/irig106utils/vs2010/Debug*
 /c/vs/Debug
 c/vs/Win32/*
 c/vs/GeneratedFiles/*
+.DS_Store

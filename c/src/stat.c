@@ -9,9 +9,9 @@
 #include "common.h"
 
 typedef struct {
-	unsigned int type;
-	int id;
-int packets;
+    unsigned int type;
+    int id;
+    int packets;
 } ChanSpec;
 
 

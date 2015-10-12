@@ -17,3 +17,5 @@ c/vs/GeneratedFiles/*
 *.o
 dist
 *.spec
+x64
+Debug

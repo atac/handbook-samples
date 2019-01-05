@@ -1,46 +1,11 @@
 #!/usr/bin/env python
 
-"""
-  reindex.py - Strip and (optionally) rebuild index packets for a Chapter 10
-    file.
-
- Copyright (c) 2015 Micah Ferrill
-
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are
- met:
-
-   * Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-
-   * Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-
-   * Neither the name Irig106.org nor the names of its contributors may
-     be used to endorse or promote products derived from this software
-     without specific prior written permission.
-
- This software is provided by the copyright holders and contributors
- "as is" and any express or implied warranties, including, but not
- limited to, the implied warranties of merchantability and fitness for
- a particular purpose are disclaimed. In no event shall the copyright
- owner or contributors be liable for any direct, indirect, incidental,
- special, exemplary, or consequential damages (including, but not
- limited to, procurement of substitute goods or services; loss of use,
- data, or profits; or business interruption) however caused and on any
- theory of liability, whether in contract, strict liability, or tort
- (including negligence or otherwise) arising in any way out of the use
- of this software, even if advised of the possibility of such damage.
-"""
-
-__doc__ = """usage: reindex.py <src> <dst> [options]
+"""usage: reindex.py <src> <dst> [options]
 
 Options:
     -s, --strip  Strip existing index packets and exit.
-    -f, --force  Overwrite existing files."""
+    -f, --force  Overwrite existing files.
+"""
 
 from array import array
 import os
@@ -48,109 +13,88 @@ import struct
 
 from docopt import docopt
 
+from common import FileProgress
 from chapter10 import C10
-from walk import walk_packets
 
 
-def gen_node(packets, seq=0):
-    """Generate an index node packet."""
+# Sequence number for channel 0
+seq = 0
 
-    print 'Index node for %s packets' % len(packets)
+
+def header(data_length, rtc):
+    global seq
 
     packet = bytes()
 
-    # Header
+    rtc_low = int((rtc >> 32) & 0xffffffff)
+    rtc_high = int((rtc >> 16) & 0xffff)
+
     values = [0xeb25,
               0,
-              24 + 4 + 8 + (20 * len(packets)),
-              4 + 8 + (20 * len(packets)),
+              24 + data_length,
+              data_length,
               0x06,
               seq,
               0,
               0x03,
-              packets[-1].rtc_low,
-              packets[-1].rtc_high]
+              rtc_low,
+              rtc_high]
 
-    sums = struct.pack('HHIIBBBBIH', *values)
-    sums = sum(array('H', sums)) & 0xffff
+    # Increment sequence.
+    seq += 1
+    seq &= 0xff
+
+    # Compute checksum
+    sums = sum(array('H', struct.pack('=HHIIBBBBIH', *values))) & 0xffff
     values.append(sums)
-    packet += struct.pack('HHIIBBBBIHH', *values)
+    packet += struct.pack('=HHIIBBBBIHH', *values)
+
+    return packet
+
+
+def gen_node(packets):
+    """Generate an index node packet."""
+
+    packet = header(12 + (20 * len(packets)), packets[-1].rtc)
 
     # CSDW
-    csdw = 0x0000
-    csdw &= 1 << 31
-    csdw &= 1 << 30
-    csdw += len(packets)
-    packet += struct.pack('I', csdw)
+    packet += struct.pack('=I', int(1 << 31) | int(1 << 30) | len(packets))
 
-    # File Length (at start of node)
-    pos = packets[-1].pos + packets[-1].packet_length
-    packet += struct.pack('Q', pos)
+    # File Length (at start of node, doubles as node packet offset)
+    pos = packets[-1].offset + packets[-1].packet_length
+    packet += struct.pack('=Q', pos)
 
     # Packets
     for p in packets:
-        ipts = struct.pack('HH', p.rtc_low & 0xffff, p.rtc_high & 0xffff)
-        index = struct.pack('xHHQ', p.channel_id, p.data_type, p.pos)
-        packet += ipts + index
+        packet += struct.pack('=Q', p.rtc)
+        packet += struct.pack('=xBHQ', p.data_type, p.channel_id, p.offset)
 
     return pos, packet
 
 
-def gen_root(nodes, last, seq, last_packet):
+def gen_root(nodes, last, last_packet):
     """Generate a root index packet."""
 
-    print 'Root index for: %s nodes' % len(nodes)
+    pos = last_packet.offset + last_packet.packet_length
 
-    packet = bytes()
+    # Root offset (as last message)
+    if last is None:
+        last = pos
+    nodes.append(last)
 
-    # Header
-    values = [0xeb25,
-              0,
-              24 + 4 + 8 + 8 + (16 * len(packets)),
-              4 + 8 + 8 + (16 * len(packets)),
-              0x06,
-              seq,
-              0,
-              0x03,
-              last_packet.rtc_low,
-              last_packet.rtc_high]
-
-    sums = struct.pack('HHIIBBBBIH', *values)
-    sums = sum(array('H', sums)) & 0xffff
-    values.append(sums)
-    packet += struct.pack('HHIIBBBBIHH', *values)
+    packet = header(12 + (16 * len(nodes)), last_packet.rtc)
 
     # CSDW
-    csdw = 0x0000
-    csdw &= 1 << 30
-    csdw += len(nodes)
-    packet += struct.pack('I', csdw)
+    packet += struct.pack('=I', int(1 << 30) | len(nodes))
 
     # File Length (at start of node)
-    pos = last_packet.pos + last_packet.packet_length
-    packet += struct.pack('Q', pos)
+    packet += struct.pack('=Q', pos)
 
-    # Node Packets
+    # Node Offsets (and a root offset)
     for node in nodes:
-        ipts = struct.pack('HH', last_packet.rtc_low & 0xffff,
-                           last_packet.rtc_high & 0xffff)
-        offset = struct.pack('Q', pos - node)
-        packet += ipts + offset
-
-    if last is None:
-        last = last_packet.pos + last_packet.packet_length
-    packet += struct.pack('Q', last)
+        packet += struct.pack('=QQ', last_packet.rtc, node)
 
     return pos, packet
-
-
-def increment(seq):
-    """Increment the sequence number or reset it."""
-
-    seq += 1
-    if seq > 0xFF:
-        seq = 0
-    return seq
 
 
 if __name__ == '__main__':
@@ -158,22 +102,28 @@ if __name__ == '__main__':
 
     # Don't overwrite unless explicitly required.
     if os.path.exists(args['<dst>']) and not args['--force']:
-        print('dst file already exists. Use -f to overwrite.')
+        print('Destination file already exists. Use -f to overwrite.')
         raise SystemExit
 
-    with open(args['<dst>'], 'wb') as out:
+    with open(args['<dst>'], 'wb') as out, \
+            FileProgress(args['<src>']) as progress:
 
-        # Packets for indexing.
+        # Data packets, node index packets
         packets, nodes = [], []
-        node_seq = 0
-        last_root = None
-        last_packet = None
+        last_packet, last_root = None, None
 
-        for packet in walk_packets(C10(args['<src>']), args):
-            last_packet = packet
+        for packet in C10(args['<src>'], lazy=True):
+            progress.update(packet.packet_length)
+
+            # Skip old index packets.
             if packet.data_type == 0x03:
                 continue
+            elif packet.channel_id == 0:
+                seq = packet.sequence_number
 
+            last_packet = packet
+
+            # Write data to output file.
             raw = bytes(packet)
             if len(raw) == packet.packet_length:
                 out.write(raw)
@@ -182,33 +132,37 @@ if __name__ == '__main__':
             if args['--strip']:
                 continue
 
+            # Note packet position in the output file.
+            packet.offset = out.tell() - packet.packet_length
             packets.append(packet)
 
             # Projected index node packet size.
-            size = 24 + 4 + 8 + (20 * len(packets))
+            size = 36 + (20 * len(packets))
+
+            # Write index if we run across a recording index or time packet.
             if packet.data_type in (0x02, 0x11) or size > 524000:
-                offset, raw = gen_node(packets, node_seq)
-                node_seq = increment(node_seq)
+                offset, raw = gen_node(packets)
                 nodes.append(offset)
                 out.write(raw)
                 packets = []
 
-                # Projected root index packet size.
-                size = 24 + 4 + (16 * len(nodes)) + 16
-                if size > 524000:
-                    last_root, raw = gen_root(nodes, last_root, node_seq,
-                                              last_packet)
-                    out.write(raw)
-                    node_seq = increment(node_seq)
-                    nodes = []
+            # Write root index if needed.
+            if (44 + (16 * len(nodes))) > 524000:
+                last_root, raw = gen_root(nodes, last_root, last_packet)
+                out.write(raw)
+                nodes = []
 
         # Final indices.
         if packets:
             offset, raw = gen_node(packets)
             nodes.append(offset)
             out.write(raw)
+            for packet in C10(buffer=raw):
+                last_packet = packet
+                break
+            last_packet.offset = out.tell() - last_packet.packet_length
         if nodes:
-            offset, raw = gen_root(nodes, last_root, node_seq, last_packet)
+            offset, raw = gen_root(nodes, last_root, last_packet)
             out.write(raw)
 
     if args['--strip']:

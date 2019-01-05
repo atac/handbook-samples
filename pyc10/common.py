@@ -1,4 +1,8 @@
 
+import os
+
+from tqdm import tqdm
+
 
 def walk_packets(c10, args={}):
     """Walk a chapter 10 file based on sys.argv (type, channel, etc.)."""
@@ -16,8 +20,7 @@ def walk_packets(c10, args={}):
     channels = [c.strip() for c in args['--channel'].split(',') if c.strip()]
     exclude = [e.strip() for e in args['--exclude'].split(',') if e.strip()]
 
-    i = 0
-    for packet in c10:
+    for i, packet in enumerate(c10):
         if i > 0:
             if channels and str(packet.channel_id) not in channels:
                 continue
@@ -25,6 +28,24 @@ def walk_packets(c10, args={}):
                 continue
             elif types and packet.data_type not in types:
                 continue
-        i += 1
 
         yield packet
+
+
+class FileProgress(tqdm):
+    """Extend tqdm to show progress reading over a file based on f.tell()."""
+
+    def __init__(self, filename, **kwargs):
+        tqdm_kwargs = dict(
+            dynamic_ncols=True,
+            total=os.stat(filename).st_size,
+            leave=False,
+            unit='bytes',
+            unit_scale=True)
+        tqdm_kwargs.update(kwargs)
+        tqdm.__init__(self, **tqdm_kwargs)
+        self.last_tell = 0
+
+    def update_from_tell(self, tell):
+        self.update(tell - self.last_tell)
+        self.last_tell = tell

@@ -12,10 +12,9 @@ Options:
     -f, --force                          Overwrite existing files."""
 
 from array import array
-import atexit
 import os
 
-from chapter10 import C10, datatypes
+from chapter10 import C10
 from docopt import docopt
 
 from common import walk_packets, FileProgress
@@ -40,10 +39,9 @@ if __name__ == '__main__':
 
             # Get filename for this channel based on data type.
             filename = os.path.join(args['--output'], str(packet.channel_id))
-            t, f = datatypes.format(packet.data_type)
-            if t == 0 and f == 1:
+            if packet.data_type == 1 and packet.channel_id == 0:
                 filename += packet.body.format == 0 and '.tmats' or '.xml'
-            elif t == 8:
+            elif 0x39 < packet.data_type < 0x45:
                 filename += '.mpg'
 
             # Ensure a file is open (and will close) for a given channel.
@@ -55,17 +53,16 @@ if __name__ == '__main__':
                     break
 
                 out[filename] = open(filename, 'wb')
-                atexit.register(out[filename].close)
 
             # Only write TMATS once.
-            elif t == 0 and f == 1:
+            elif packet.data_type == 1 and packet.channel_id == 0:
                 continue
 
             # Handle special case for video data.
-            if t == 8:
+            if packet.data_type == 0x40 and packet.body.byte_alignment == 0:
                 for ts in packet.body:
                     ts = array('H', ts.data)
-                    # ts.byteswap()
+                    ts.byteswap()
                     ts.tofile(out[filename])
             else:
                 data = bytes(packet)[24:packet.data_length + 24]

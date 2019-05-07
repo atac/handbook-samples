@@ -18,5 +18,5 @@ With Pip installed you can install dependencies by simply::
 
 If the dependencies are installed you can run each sample from the commandline using python (eg: python c10_stat.py) and commandline help will show you how to use each one.
 
-.. _PyChapter10: https://bitbucket.org/atac-bham/pychapter10
+.. _PyChapter10: https://github.com/atac-bham/pychapter10
 .. _Python: http://python.org

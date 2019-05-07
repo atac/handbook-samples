@@ -13,7 +13,7 @@ basic demos. Each has its own readme file.
 * c - Standard C samples using the `Irig 106`_ library.
 * python - Python samples using the PyChapter10_ library (pure python).
 
-.. _PyChapter10: https://bitbucket.org/atac-bham/pychapter10
+.. _PyChapter10: https://github.com/atac-bham/pychapter10
 .. _Irig 106: http://sourceforge.net/projects/irig106/
 
 Each section has its own readme.rst explaining the build and run process.

@@ -1,24 +1,14 @@
 #!/usr/bin/env python
 
-"""usage: c10-stat <file> [options]
-
-Options:
-    -c CHANNEL..., --channel CHANNEL...  Specify channels to include (csv).
-    -e CHANNEL..., --exclude CHANNEL...  Specify channels to ignore (csv).
-    -t TYPE, --type TYPE                 The types of data to show (csv, may \
-be decimal or hex eg: 0x40).
-"""
-
 from __future__ import print_function
-
-from docopt import docopt
+import sys
 
 try:
     from i106 import C10
 except ImportError:
     from chapter10 import C10
 
-from common import walk_packets, fmt_number, fmt_size, FileProgress
+from common import fmt_number, fmt_size, FileProgress
 
 
 TYPES = (
@@ -41,17 +31,19 @@ TYPES = (
 )
 
 
-def main():
+if __name__ == '__main__':
 
     # Get commandline args.
-    args = docopt(__doc__)
+    if len(sys.argv) < 2:
+        print('usage: stat.py <file>')
+        raise SystemExit
 
     channels = {}
 
-    with FileProgress(args['<file>']) as progress:
+    with FileProgress(sys.argv[-1]) as progress:
 
         # Iterate over selected packets based on args.
-        for packet in walk_packets(C10(args['<file>']), args):
+        for packet in C10(sys.argv[-1]):
             key = (packet.channel_id, packet.data_type)
             if key not in channels:
                 channels[key] = {'packets': 0,
@@ -65,35 +57,31 @@ def main():
             progress.update(packet.packet_length)
 
     # Print details for each channel.
-    print('Channel ID {:>13} {:>38} {:>16}'.format(
-        'Data Type', 'Packets', 'Size'))
+    print('{} {:>13} {:>38} {:>16}'.format(
+        'Channel ID', 'Data Type', 'Packets', 'Size'))
     print('-' * 80)
     packets, size = 0, 0
     for key, channel in sorted(channels.items()):
         datatype = int(channel['type'] / 8.0)
         type_label = TYPES[datatype]
         subtype = channel['type'] - (datatype * 8)
+        type_label = '{} - {} (format {})'.format(hex(channel['type']),
+                                                  TYPES[datatype],
+                                                  subtype)
 
-        print('Channel {:<7}{:<35}'.format(channel['id'],
-        ('%s - %s (format %s)' % (hex(channel['type']),
-                                        type_label,
-                                        subtype)).ljust(35), end='')
-        print(fmt_number(channel['packets']).rjust(13), end='')
-        print(fmt_size(channel['size']).rjust(17))
+        print('Channel {:<6} {:<40} {:>7} {:>16}'.format(
+            channel['id'],
+            type_label,
+            fmt_number(channel['packets']),
+            fmt_size(channel['size'])))
+
         packets += channel['packets']
         size += channel['size']
 
     # Print file summary.
     print('-' * 80)
-    print('''Summary for %s:
-    Channels: %s
-    Packets: %s
-    Size: %s''' % (
-        args['<file>'], len(channels), fmt_number(packets), fmt_size(size)))
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
+    print('''Summary for {}:
+    Channels: {:>10}
+    Packets: {:>11}
+    Size: {:>14}'''.format(
+        sys.argv[-1], len(channels), fmt_number(packets), fmt_size(size)))

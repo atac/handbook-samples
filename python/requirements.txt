@@ -1,3 +1,4 @@
+-e git+git@github.com:/atac-bham/libirig106-python@be12cca815c05b767d4c62b8c26d9c75b49fde2f#egg=i106
 -e git+git@github.com:atac-bham/pychapter10.git@2a15b2d2d8cf4ea469c91938317778f696e406f5#egg=Chapter10
 bitstring==3.1.2
 docopt==0.6.1
